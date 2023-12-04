@@ -1,0 +1,8 @@
+@localhost = http://localhost:3000
+
+#### GET recuperar o status da aplicação
+GET {{localhost}}/health-status
+Content-Type: application/json
+
+
+
