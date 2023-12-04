@@ -1,0 +1,33 @@
+{
+  "name": "kafkonnector",
+  "version": "1.0.0",
+  "description": "Kafka File Connector",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test",
+    "start": "export NODE_ENV=dev && node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/edergr/kafkonnector.git"
+  },
+  "keywords": [
+    "kafka",
+    "file",
+    "connector",
+    "file-connector",
+    "kafka-connector"
+  ],
+  "author": "Edergr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/edergr/kafkonnector/issues"
+  },
+  "homepage": "https://github.com/edergr/kafkonnector#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "nconf": "^0.12.1"
+  }
+}
