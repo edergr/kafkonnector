@@ -1,0 +1,11 @@
+@localhost = http://localhost:3000
+
+#### GET recuperar o status da aplicação
+GET {{localhost}}/connectors/teste/configs
+Content-Type: application/json
+
+#### GET recuperar o status da aplicação
+GET {{localhost}}/connectors
+Content-Type: application/json
+
+
