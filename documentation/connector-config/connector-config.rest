@@ -14,7 +14,8 @@ Content-Type: application/json
 
 {
     "name": "pepino",
-    "idade": 1231
+    "topic": "this.is-my.topic.name",
+    "delimiter": ";"
 }
 
 #### DELETE remover um conector específico
