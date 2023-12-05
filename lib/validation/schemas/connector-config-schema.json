@@ -1,0 +1,24 @@
+{
+  "id": "connectorConfig",
+  "type": "object",
+  "required": [
+    "name",
+    "topic",
+    "delimiter"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "topic": {
+      "type": "string"
+    },
+    "delimiter": {
+      "type": "string",
+      "maxLength": 1
+    },
+    "filters": {
+      "type": "array"
+    }
+  }
+}
