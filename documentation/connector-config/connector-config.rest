@@ -1,9 +1,22 @@
 @localhost = http://localhost:3000
 
-#### GET recuperar o status da aplicação
-GET {{localhost}}/connectors/pipoca/configs
+#### GET recuperar um conector específico
+GET {{localhost}}/connectors/pepino/configs
 Content-Type: application/json
 
-#### GET recuperar o status da aplicação
+#### GET recuperar nome dos conectores disponíveis
 GET {{localhost}}/connectors
+Content-Type: application/json
+
+#### POST remover um conector específico
+POST {{localhost}}/connectors
+Content-Type: application/json
+
+{
+    "name": "pepino",
+    "idade": 1231
+}
+
+#### DELETE remover um conector específico
+DELETE {{localhost}}/connectors/pipoca
 Content-Type: application/json
