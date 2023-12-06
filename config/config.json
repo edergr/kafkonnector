@@ -1,5 +1,5 @@
 {
   "PORT": 3000,
   "MONGODB_URI": "mongodb://localhost:27017/connectors",
-  "ROOT_FOLDER": "/data"
+  "ROOT_FOLDER": "/data/kafkonnector"
 }

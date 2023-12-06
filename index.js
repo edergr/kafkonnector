@@ -2,7 +2,8 @@ const pkg = require('./package.json');
 const server = require('./lib/server');
 const { database, logger } = require('./lib/commons');
 const wathcers = require('./lib/streams/watcher');
-const { checkMappedFolders } = require('./lib/file-processor/mapped-folders');
+const { checkMappedFolders } = require('./lib/handle-folders/mapping');
+const { startMonitoringFolder } = require('./lib/handle-folders/monitoring');
 
 process.title = pkg.name;
 
@@ -36,7 +37,8 @@ process.on('SIGTERM', shutdown)
     await server.start();
     await database.connect();
     startWathcers();
-    checkMappedFolders();
+    await checkMappedFolders();
+    await startMonitoringFolder();
   } catch (err) {
     logger.error('Initialization failed', err);
     throw err;
