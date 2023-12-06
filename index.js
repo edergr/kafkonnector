@@ -1,6 +1,8 @@
 const pkg = require('./package.json');
 const server = require('./lib/server');
 const { database, logger } = require('./lib/commons');
+const wathcers = require('./lib/streams/watcher');
+const { checkMappedFolders } = require('./lib/file-processor/mapped-folders');
 
 process.title = pkg.name;
 
@@ -9,6 +11,10 @@ const shutdown = async () => {
   await server.stop();
   process.exit(0);
 };
+
+const startWathcers = () => {
+  wathcers.watchCreatedConnectors();
+}
 
 process.on('SIGTERM', shutdown)
   .on('SIGINT', shutdown)
@@ -29,6 +35,8 @@ process.on('SIGTERM', shutdown)
   try {
     await server.start();
     await database.connect();
+    startWathcers();
+    checkMappedFolders();
   } catch (err) {
     logger.error('Initialization failed', err);
     throw err;
