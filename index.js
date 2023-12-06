@@ -13,8 +13,10 @@ const shutdown = async () => {
   process.exit(0);
 };
 
-const startWathcers = () => {
+const startProcedures = async () => {
   wathcers.watchCreatedConnectors();
+  await checkMappedFolders();
+  await startMonitoringFolder();
 }
 
 process.on('SIGTERM', shutdown)
@@ -36,9 +38,7 @@ process.on('SIGTERM', shutdown)
   try {
     await server.start();
     await database.connect();
-    startWathcers();
-    await checkMappedFolders();
-    await startMonitoringFolder();
+    await startProcedures();
   } catch (err) {
     logger.error('Initialization failed', err);
     throw err;
