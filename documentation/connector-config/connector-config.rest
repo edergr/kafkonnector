@@ -13,7 +13,7 @@ POST {{localhost}}/connectors
 Content-Type: application/json
 
 {
-    "name": "eder",
+    "name": "abobora",
     "topic": "this.is-my.topic.name",
     "delimiter": ";"
 }
