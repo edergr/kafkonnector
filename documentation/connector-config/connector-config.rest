@@ -13,11 +13,11 @@ POST {{localhost}}/connectors
 Content-Type: application/json
 
 {
-    "name": "pepino",
+    "name": "eder",
     "topic": "this.is-my.topic.name",
     "delimiter": ";"
 }
 
 #### DELETE remover um conector específico
-DELETE {{localhost}}/connectors/pipoca
+DELETE {{localhost}}/connectors/teste
 Content-Type: application/json
