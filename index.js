@@ -4,10 +4,12 @@ const { database, logger } = require('./lib/commons');
 const wathcers = require('./lib/streams/watcher');
 const { checkMappedFolders } = require('./lib/handle-folders/mapping');
 const monitoring = require('./lib/handle-folders/monitoring');
+const kafkaManager = require('./lib/streams/kafka/manager');
 
 process.title = pkg.name;
 
 const shutdown = async () => {
+  await kafkaManager.disconnect();
   await database.close();
   await server.stop();
   process.exit(0);
@@ -39,6 +41,7 @@ process.on('SIGTERM', shutdown)
   try {
     await server.start();
     await database.connect();
+    await kafkaManager.connect();
     await startProcedures();
   } catch (err) {
     logger.error('Initialization failed', err);

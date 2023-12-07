@@ -13,9 +13,9 @@ POST {{localhost}}/connectors
 Content-Type: application/json
 
 {
-    "name": "abobora",
+    "name": "fruits",
     "delimiter": ";",
-    "topic": "this.is-my.topic.name",
+    "topic": "event-streaming.connector.teste-datas",
     "fieldNames": "fruta1;fruta2;fruta3;fruta4;fruta5;fruta6;fruta7",
     "filters" : {
         "sequence" : "renameFruta1;removeFruta2;appendFruta3e4;renameFruta5;removeFruta6", 
