@@ -3,7 +3,7 @@ const server = require('./lib/server');
 const { database, logger } = require('./lib/commons');
 const wathcers = require('./lib/streams/watcher');
 const { checkMappedFolders } = require('./lib/handle-folders/mapping');
-const { startMonitoringFolder } = require('./lib/handle-folders/monitoring');
+const monitoring = require('./lib/handle-folders/monitoring');
 
 process.title = pkg.name;
 
@@ -16,7 +16,8 @@ const shutdown = async () => {
 const startProcedures = async () => {
   wathcers.watchCreatedConnectors();
   await checkMappedFolders();
-  await startMonitoringFolder();
+  await monitoring.pendingFolders();
+  await monitoring.retryFolders();
 }
 
 process.on('SIGTERM', shutdown)

@@ -1,24 +1,98 @@
 {
   "id": "connectorConfig",
   "type": "object",
-  "required": [
-    "name",
-    "topic",
-    "delimiter"
-  ],
   "properties": {
     "name": {
       "type": "string"
     },
+    "delimiter": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1
+    },
     "topic": {
       "type": "string"
     },
-    "delimiter": {
-      "type": "string",
-      "maxLength": 1
+    "fieldNames": {
+      "type": "string"
     },
     "filters": {
-      "type": "array"
+      "type": "object",
+      "properties": {
+        "sequence": {
+          "type": "string"
+        },
+        "jobs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "rename",
+                  "remove",
+                  "append"
+                ]
+              },
+              "field": {
+                "type": "string",
+                "required": [
+                  "rename",
+                  "remove"
+                ]
+              },
+              "target": {
+                "type": "string",
+                "required": [
+                  "rename"
+                ]
+              },
+              "firstField": {
+                "type": "string",
+                "required": [
+                  "append"
+                ]
+              },
+              "secondField": {
+                "type": "string",
+                "required": [
+                  "append"
+                ]
+              },
+              "newFieldName": {
+                "type": "string",
+                "required": [
+                  "append"
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "type"
+            ]
+          }
+        }
+      },
+      "required": [
+        "sequence",
+        "jobs"
+      ]
+    },
+    "retry": {
+      "type": "boolean",
+      "default": false
     }
-  }
+  },
+  "required": [
+    "name",
+    "delimiter",
+    "topic",
+    "fieldNames",
+    "retry"
+  ]
 }
