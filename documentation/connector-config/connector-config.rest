@@ -14,8 +14,44 @@ Content-Type: application/json
 
 {
     "name": "abobora",
+    "delimiter": ";",
     "topic": "this.is-my.topic.name",
-    "delimiter": ";"
+    "fieldNames": "fruta1;fruta2;fruta3;fruta4;fruta5;fruta6;fruta7",
+    "filters" : {
+        "sequence" : "renameFruta1;removeFruta2;appendFruta3e4;renameFruta5;removeFruta6", 
+        "jobs": [
+            {
+                "name" : "renameFruta1", 
+                "type" : "rename", 
+                "field" : "fruta1", 
+                "target" : "frutaUm"
+            }, 
+            {
+                "name" : "removeFruta2", 
+                "type" : "remove", 
+                "field" : "fruta2"
+            }, 
+            {
+                "name" : "appendFruta3e4", 
+                "type" : "append", 
+                "firstField" : "fruta3", 
+                "secondField" : "fruta4", 
+                "newFieldName" : "fruta3e4"
+            }, 
+            {
+                "name" : "renameFruta5", 
+                "type" : "rename", 
+                "field" : "fruta5", 
+                "target" : "frutaCinco"
+            }, 
+            {
+                "name" : "removeFruta6", 
+                "type" : "remove", 
+                "field" : "fruta6"
+            }
+        ]
+    },
+    "retry" : false
 }
 
 #### DELETE remover um conector específico
