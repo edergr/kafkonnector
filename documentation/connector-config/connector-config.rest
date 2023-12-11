@@ -1,7 +1,7 @@
 @localhost = http://localhost:3000
 
 #### GET recuperar um conector específico
-GET {{localhost}}/connectors/pepino/configs
+GET {{localhost}}/connectors/fruits/configs
 Content-Type: application/json
 
 #### GET recuperar nome dos conectores disponíveis
@@ -55,5 +55,5 @@ Content-Type: application/json
 }
 
 #### DELETE remover um conector específico
-DELETE {{localhost}}/connectors/teste
+DELETE {{localhost}}/connectors/abroba
 Content-Type: application/json
