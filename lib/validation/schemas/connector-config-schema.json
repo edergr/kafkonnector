@@ -1,5 +1,5 @@
 {
-  "id": "connectorConfig",
+  "$id": "connectorConfig",
   "type": "object",
   "properties": {
     "name": {
