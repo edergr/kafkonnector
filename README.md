@@ -9,6 +9,7 @@ Kafkonnector is a versatile tool designed to transform large files into Kafka me
 - [Validation Schema](#validation-schema)
 - [Folder Structure and Processing Logic](#folder-structure-and-processing-logic)
 - [Project Structure](#project-structure)
+- [Performance](#performance)
 
 ## Installation
 To install Kafkonnector, ensure you have Node.js and npm installed. Then, run the following commands:
@@ -28,11 +29,11 @@ Kafkonnector exposes a set of APIs for managing connectors and efficiently proce
 - **Description:** Retrieve an array of all registered connectors.
 
 **Example:**
-```json
+```bash
 [
-   'mobiles',
-   'operators',
-   'subscription'
+  'mobiles',
+  'operators',
+  'subscription'
 ]
 ```
 #### 2. Get Connector Configuration
@@ -293,7 +294,7 @@ When creating new connectors using the POST method, the `mongoWatcher` automatic
 
 - `/data/kafkonnector/subscription/processed`: Upon successful processing, the service compiles the processed lines into a file within this folder. The file is named `${currentTimestamp}_subscriptions.txt`, and it contains the lines successfully written to the Kafka topic.
 
-`/data/kafkonnector/subscription/retry`: For lines that encountered processing errors and were not successfully written to the Kafka topic, these lines are compiled into a file within the retry folder. 
+- `/data/kafkonnector/subscription/retry`: For lines that encountered processing errors and were not successfully written to the Kafka topic, these lines are compiled into a file within the retry folder. 
 
   - If the connector is registered with the 'retry' property set to true, after the completion of processing, the file in the retry folder is moved back to the pending folder for reprocessing.
 
@@ -321,6 +322,46 @@ The project is organized into distinct modules, each responsible for specific as
 
 - **streams:** The streams module encompasses the logic for Kafka interactions and the MongoDB watcher. It facilitates the communication with Kafka topics and monitors the MongoDB for changes, ensuring a dynamic and responsive system.
 
-Feel free to explore the codebase further, as these modules are designed to encapsulate specific functionalities, promoting a modular and maintainable architecture.
+## Performance
+
+### Processing a Million Lines
+
+One million lines of data were processed in the following scenario:
+
+- Input: File with one million lines
+- Operation: All lines were treated with specific filters
+- Output: Messages were sent to a Kafka topic with 5 partitions
+
+#### Kafka Topic Details
+
+- **Partition 0:**
+  - Offset Range: 0 to 200001
+  - Messages: 200002
+
+- **Partition 1:**
+  - Offset Range: 0 to 200287
+  - Messages: 200288
+
+- **Partition 2:**
+  - Offset Range: 0 to 199810
+  - Messages: 199811
+
+- **Partition 3:**
+  - Offset Range: 0 to 199654
+  - Messages: 199656
+
+- **Partition 4:**
+  - Offset Range: 0 to 200243
+  - Messages: 200244
+
+- **Total Messages:** 1000000
+
+#### Processing Time
+
+The processing time for the entire operation was:
+- **2 minutes, 24 seconds, and 924 milliseconds**
+
+This showcases the efficient performance of our service in handling large datasets and processing them swiftly.
+
 
 Enjoy using Kafkonnector for seamless and efficient file-to-message transformations!
