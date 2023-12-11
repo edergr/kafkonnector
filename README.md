@@ -365,8 +365,8 @@ One million lines of data were processed in the following scenario:
 
 The processing time for the entire operation was:
 - **2 minutes, 24 seconds, and 924 milliseconds**
+![image](https://github.com/edergr/kafkonnector/assets/107067613/dd2418fe-b977-4bee-9234-103793d76cee)
 
 This showcases the efficient performance of our service in handling large datasets and processing them swiftly.
-
 
 Enjoy using Kafkonnector for seamless and efficient file-to-message transformations!
