@@ -337,22 +337,27 @@ One million lines of data were processed in the following scenario:
 - **Partition 0:**
   - Offset Range: 0 to 200001
   - Messages: 200002
+![image](https://github.com/edergr/kafkonnector/assets/107067613/d88c0ae2-9f26-4e8f-85c1-9112de6bf77d)
 
 - **Partition 1:**
   - Offset Range: 0 to 200287
   - Messages: 200288
+![image](https://github.com/edergr/kafkonnector/assets/107067613/66f4822d-93c7-48d4-94da-88e343addc4a)
 
 - **Partition 2:**
   - Offset Range: 0 to 199810
   - Messages: 199811
+![image](https://github.com/edergr/kafkonnector/assets/107067613/0bf46829-c164-49bb-814d-c6a3658da641)
 
 - **Partition 3:**
   - Offset Range: 0 to 199654
   - Messages: 199656
+![image](https://github.com/edergr/kafkonnector/assets/107067613/cc57e02b-0520-43d4-9806-6c8aafc19e87)
 
 - **Partition 4:**
   - Offset Range: 0 to 200243
   - Messages: 200244
+![image](https://github.com/edergr/kafkonnector/assets/107067613/8e9634d5-3ca0-4f59-896f-4db5053fc26b)
 
 - **Total Messages:** 1000000
 
