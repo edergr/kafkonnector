@@ -351,7 +351,7 @@ One million lines of data were processed in the following scenario:
 
 - **Partition 3:**
   - Offset Range: 0 to 199654
-  - Messages: 199656
+  - Messages: 199655
 ![image](https://github.com/edergr/kafkonnector/assets/107067613/cc57e02b-0520-43d4-9806-6c8aafc19e87)
 
 - **Partition 4:**
