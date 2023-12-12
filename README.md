@@ -265,7 +265,7 @@ And the jobs are specified in the `jobs` array, following the example provided i
     "type" : "append", 
     "firstField" : "birthMonthAndDay", 
     "secondField" : "birthYear", 
-    "newFieldName" : "birthFullDate"
+    "newFieldName" : "birthDate"
   }
 ]
 ```
@@ -275,7 +275,7 @@ Applying the filters above to a file containing the fields: `"name;age;birthMont
 ```json
 {
   "userName": "Pedro",
-  "birthFullDate": "12021990"
+  "birthDate": "12021990"
 }
 ```
 
@@ -300,72 +300,49 @@ When creating new connectors using the POST method, the `mongoWatcher` automatic
 
   - If during this reprocessing attempt 'n' records are successfully written, the processed folder receives an additional file named `${currentTimestamp}_r_subscriptions.txt`, containing the 'n' lines that were successfully processed.
 
-  - If 'n' records still encounter errors during this reprocessing attempt, the processed folder receives another file named `erro_$currentTimestamp_r_subscription.txt`.
+  - If 'n' records still encounter errors during this reprocessing attempt, the processed folder receives another file named `error_$currentTimestamp_r_subscription.txt`.
 
-  - If the connector is registered with 'retry' set to false, the processed folder, in addition to receiving the file `${currentTimestamp}_subscriptions.txt` with the 'n' lines successfully written, also receives a file named `erro_${currentTimestamp}_subscriptions.txt`, containing the 'n' lines that were not successfully written to the topic.
+  - If the connector is registered with 'retry' set to false, the processed folder, in addition to receiving the file `${currentTimestamp}_subscriptions.txt` with the 'n' lines successfully written, also receives a file named `error_${currentTimestamp}_subscriptions.txt`, containing the 'n' lines that were not successfully written to the topic.
 
 Upon starting the service, it checks the number of connectors in the database and whether the mapped folders already exist. If any or all of the folders do not exist, the service creates them automatically.
 
-## Project Structure
-
-The project is organized into distinct modules, each responsible for specific aspects of its functionality:
-
-- **connector-config:** This module encapsulates the logic for configuring connectors. It handles the creation and modification of connector settings, ensuring that the system operates with the desired configurations.
-
-- **data-processor:** The data-processor module is dedicated to processing the content of files. It manages the transformation and manipulation of data according to the specified configurations, preparing it for transmission to the Kafka topic.
-
-- **file-processor:** Within this module lies the logic for processing files. It orchestrates the interaction between the data-processor and the file system, ensuring efficient and accurate file processing.
-
-- **handle-folders:** This module manages the treatment of folders within the system. It oversees the creation and handling of the folders related to pending, processed, and retry files, ensuring a seamless workflow during file processing.
-
-- **server:** The server module is responsible for managing the startup and shutdown procedures of the entire project. It coordinates the initialization and termination of services, providing a central point of control.
-
-- **streams:** The streams module encompasses the logic for Kafka interactions and the MongoDB watcher. It facilitates the communication with Kafka topics and monitors the MongoDB for changes, ensuring a dynamic and responsive system.
 
 ## Performance
 
-### Processing a Million Lines
+| Test | Lines Processed | Execution Time |  
+|------|-----------------|-----------------|  
+| 1    | 100,000         | 13 seconds      |  
+| 2    | 1,000,000       | 2 minutes 25 seconds |  
+| 3    | 10,000,000      | 23 minutes 8 seconds |  
 
-One million lines of data were processed in the following scenario:
+### Partition Details
 
-- Input: File with one million lines
-- Operation: All lines were treated with specific filters
-- Output: Messages were sent to a Kafka topic with 5 partitions
+#### Test 1 (100,000 Lines)
+| Partition | Offset Range     | Total Messages |
+|-----------|------------------|-----------------|
+| 0         | 0 to 20138       | 20139           |
+| 1         | 0 to 20048       | 20049           |
+| 2         | 0 to 20079       | 20080           |
+| 3         | 0 to 19850       | 19851           |
+| 4         | 0 to 19880       | 19881           |
 
-#### Kafka Topic Details
+#### Test 2 (1,000,000 Lines)
+| Partition | Offset Range     | Total Messages |
+|-----------|------------------|-----------------|
+| 0         | 0 to 200001      | 200002          |
+| 1         | 0 to 200287      | 200288          |
+| 2         | 0 to 199810      | 199811          |
+| 3         | 0 to 199654      | 199655          |
+| 4         | 0 to 200243      | 200244          |
 
-- **Partition 0:**
-  - Offset Range: 0 to 200001
-  - Messages: 200002
-![image](https://github.com/edergr/kafkonnector/assets/107067613/d88c0ae2-9f26-4e8f-85c1-9112de6bf77d)
-
-- **Partition 1:**
-  - Offset Range: 0 to 200287
-  - Messages: 200288
-![image](https://github.com/edergr/kafkonnector/assets/107067613/66f4822d-93c7-48d4-94da-88e343addc4a)
-
-- **Partition 2:**
-  - Offset Range: 0 to 199810
-  - Messages: 199811
-![image](https://github.com/edergr/kafkonnector/assets/107067613/0bf46829-c164-49bb-814d-c6a3658da641)
-
-- **Partition 3:**
-  - Offset Range: 0 to 199654
-  - Messages: 199655
-![image](https://github.com/edergr/kafkonnector/assets/107067613/cc57e02b-0520-43d4-9806-6c8aafc19e87)
-
-- **Partition 4:**
-  - Offset Range: 0 to 200243
-  - Messages: 200244
-![image](https://github.com/edergr/kafkonnector/assets/107067613/8e9634d5-3ca0-4f59-896f-4db5053fc26b)
-
-- **Total Messages:** 1000000
-
-#### Processing Time
-
-The processing time for the entire operation was:
-- **2 minutes, 24 seconds, and 924 milliseconds**
-![image](https://github.com/edergr/kafkonnector/assets/107067613/dd2418fe-b977-4bee-9234-103793d76cee)
+#### Test 3 (10,000,000 Lines)
+| Partition | Offset Range     | Total Messages |
+|-----------|------------------|-----------------|
+| 0         | 0 to 1999243     | 1999244         |
+| 1         | 0 to 2000019     | 2000020         |
+| 2         | 0 to 1999619     | 1999620         |
+| 3         | 0 to 2000654     | 2000655         |
+| 4         | 0 to 2000460     | 2000461         |
 
 This showcases the efficient performance of our service in handling large datasets and processing them swiftly.
 
