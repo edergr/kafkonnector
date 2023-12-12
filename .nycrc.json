@@ -1,0 +1,21 @@
+{
+  "check-coverage": true,
+  "extension": [".js"],
+  "include": ["lib/*"],
+  "exclude": [
+    "test",
+    "dangerfile.js",
+    "lib/server/**"
+  ],
+  "statements": 90,
+  "branches": 85,
+  "functions": 90,
+  "lines": 90,
+  "reporter": ["lcov", "html", "text", "text-summary"],
+  "watermarks": {
+    "lines": [50, 99],
+    "functions": [50, 99],
+    "branches": [50, 99],
+    "statements": [50, 99]
+  }
+}
