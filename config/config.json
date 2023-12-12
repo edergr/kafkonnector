@@ -6,6 +6,5 @@
   "KAFKA_SECURITY_PROTOCOL": "PLAINTEXT",
   "KAFKA_USERNAME": "foo",
   "KAFKA_PASSWORD": "bar",
-  "KAFKA_GLOBAL_KEY_ID": "8",
   "SCHEMA_REGISTRY_URL": "http://localhost:8081"
 }
