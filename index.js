@@ -20,7 +20,7 @@ const startProcedures = async () => {
   await checkMappedFolders();
   await monitoring.pendingFolders();
   await monitoring.retryFolders();
-}
+};
 
 process.on('SIGTERM', shutdown)
   .on('SIGINT', shutdown)
