@@ -4,10 +4,12 @@ Kafkonnector is a versatile tool designed to transform large files into Kafka me
 
 ## Table of Contents
 - [Installation](#installation)
+- [Environment Configuration](#environment-configuration)
 - [Usage](#usage)
 - [API Endpoints](#api-endpoints)
 - [Validation Schema](#validation-schema)
-- [Folder Structure and Processing Logic](#folder-structure-and-processing-logic)
+- [Folder Structure](#folder-structure)
+- [Processing Logic](#processing-logic)
 - [Performance](#performance)
 
 ## Installation
@@ -18,6 +20,36 @@ npm install
 npm start
 ```
 
+## Environment Configuration
+
+Kafkonnector utilizes various environment variables to configure different aspects of the service. Here are the available variables and their default values:
+
+- **PORT:** `3000`  
+  The port number on which the service will run.
+
+- **MONGODB_URI:** `mongodb://localhost:27017/connectors`  
+  The connection URI to the MongoDB database where connector configurations are stored.
+
+- **ROOT_FOLDER:** `/data/kafkonnector`  
+ The root directory in which the service organizes folders for pending, processed, and retry files.
+
+- **KAFKA_CONNECT_URL:** `localhost:9092`  
+  The connection URL to the Kafka cluster.
+
+- **KAFKA_SECURITY_PROTOCOL:** `PLAINTEXT`  
+  The security protocol used to communicate with the Kafka cluster.
+
+- **KAFKA_USERNAME:** `username`  
+  The username, if required, for authentication to the Kafka cluster.
+
+- **KAFKA_PASSWORD:** `userpass`  
+  The password corresponding to the username for authentication to the Kafka cluster.
+
+- **SCHEMA_REGISTRY_URL:** `http://localhost:8081`  
+  The URL of the Schema Registry, if in use.
+
+Make sure to adjust these variables according to your environment's requirements before starting the Kafkonnector service.
+
 ## Usage
 Kafkonnector exposes a set of APIs for managing connectors and efficiently processing files. The service automatically creates folders for pending, processed, and retry files within the `/data/` directory.
 
@@ -27,7 +59,7 @@ Kafkonnector exposes a set of APIs for managing connectors and efficiently proce
 - **Endpoint:** `GET /connectors`
 - **Description:** Retrieve an array of all registered connectors.
 
-**Example:**
+**Response example:**
 ```bash
 [
   'mobiles',
@@ -39,7 +71,7 @@ Kafkonnector exposes a set of APIs for managing connectors and efficiently proce
 - **Endpoint:** `GET /connectors/:connector/configs`
 - **Description:** Retrieve the configuration details of a specific connector.
 
-**Example:**
+**Response example:**
 ```json
 {
   "_id": "65722975fe1d43e902a05302",
@@ -82,7 +114,7 @@ Kafkonnector exposes a set of APIs for managing connectors and efficiently proce
 - **Endpoint:** `POST /connectors`
 - **Description:** Create or update a connector. The name property is used to identify existing connectors for updates.
 
-**Example:**
+**Request example:**
 ```json
 {
   "name": "subscriptions",
@@ -217,16 +249,6 @@ When making a POST request to configure a connector, the request payload is vali
 }
 ```
 
-- **name:** A unique name for the connector configuration.
-
-- **delimiter:** This property specifies the delimiter between fields in the file. For example, if your file format is `text;text;text`, the delimiter should be specified as `;`.
-
-- **topic:** This property represents the destination topic where messages should be written.
-
-- **fieldNames:** This property is a string with the names of fields separated by `;`. For example, if the file contains the names, ages, and birthdates (`Arthur;18;12;02;1990`), `fieldNames` should be something like: `"name;age;birthMonth;birthDay;birthYear"`.
-
-- **retry:** This boolean property indicates whether there should be a retry attempt for records that encountered errors during processing.
-
 ### Filters Operation
 
 The filters are not mandatory; however, if you wish to include filters in your connector, it is mandatory to provide the `sequence` and the `jobs`. The number of `jobs` must be equal to the number of names in the `sequence`, which should be separated by the delimiter `;`.
@@ -273,7 +295,7 @@ Applying the filters above to a file containing the fields: `"name;age;birthMont
 
 ```json
 {
-  "userName": "Pedro",
+  "userName": "Liz",
   "birthDate": "12021990"
 }
 ```
@@ -285,7 +307,7 @@ This mechanism allows flexible and customizable transformations to be applied to
 The provided filters currently include three types: `rename`, `remove`, and `append`.
 
 
-## Folder Structure and Processing Logic
+## Folder Structure
 
 When creating new connectors using the POST method, the `mongoWatcher` automatically maps specific folders within the `/data/` directory. This mapping is exemplified in the scenario described below:
 
@@ -295,16 +317,17 @@ When creating new connectors using the POST method, the `mongoWatcher` automatic
 
 - `/data/kafkonnector/subscription/retry`: For lines that encountered processing errors and were not successfully written to the Kafka topic, these lines are compiled into a file within the retry folder. 
 
-  - If the connector is registered with the 'retry' property set to true, after the completion of processing, the file in the retry folder is moved back to the pending folder for reprocessing.
+## Processing Logic
 
-  - If during this reprocessing attempt 'n' records are successfully written, the processed folder receives an additional file named `${currentTimestamp}_r_subscriptions.txt`, containing the 'n' lines that were successfully processed.
+- If the connector is configured with the `retry` property set to true, after the initial processing, any files in the retry folder are moved back to the pending folder for reprocessing.
 
-  - If 'n' records still encounter errors during this reprocessing attempt, the processed folder receives another file named `error_$currentTimestamp_r_subscription.txt`.
+- During this reprocessing, if 'n' records are successfully written, an additional file is generated in the processed folder named `${currentTimestamp}_r_subscriptions.txt`. This file contains the 'n' lines that were successfully processed.
 
-  - If the connector is registered with 'retry' set to false, the processed folder, in addition to receiving the file `${currentTimestamp}_subscriptions.txt` with the 'n' lines successfully written, also receives a file named `error_${currentTimestamp}_subscriptions.txt`, containing the 'n' lines that were not successfully written to the topic.
+- If, during this reprocessing attempt, some records still encounter errors, another file is created in the processed folder named `error_${currentTimestamp}_r_subscription.txt`.
 
-Upon starting the service, it checks the number of connectors in the database and whether the mapped folders already exist. If any or all of the folders do not exist, the service creates them automatically.
+- Conversely, if the connector is configured with 'retry' set to false, the processed folder receives the file `${currentTimestamp}_subscriptions.txt` with the 'n' lines that were successfully written. Additionally, a file named `error_${currentTimestamp}_subscriptions.txt` is generated, containing the 'n' lines that were not successfully written to the Kafka topic.
 
+This mechanism allows for flexible handling of records, providing insight into both successful and unsuccessful processing attempts based on the retry configuration of the connector.
 
 ## Performance
 
