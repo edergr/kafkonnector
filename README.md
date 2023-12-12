@@ -8,7 +8,6 @@ Kafkonnector is a versatile tool designed to transform large files into Kafka me
 - [API Endpoints](#api-endpoints)
 - [Validation Schema](#validation-schema)
 - [Folder Structure and Processing Logic](#folder-structure-and-processing-logic)
-- [Project Structure](#project-structure)
 - [Performance](#performance)
 
 ## Installation
