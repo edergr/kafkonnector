@@ -223,7 +223,7 @@ When making a POST request to configure a connector, the request payload is vali
 
 - **topic:** This property represents the destination topic where messages should be written.
 
-- **fieldNames:** This property is a string with the names of fields separated by `;`. For example, if the file contains the names, ages, and birthdates (`Arthur;18;12;02;1990`), `fieldNames` should be something like: "name;age;birthMonth;birthDay;birthYear".
+- **fieldNames:** This property is a string with the names of fields separated by `;`. For example, if the file contains the names, ages, and birthdates (`Arthur;18;12;02;1990`), `fieldNames` should be something like: `"name;age;birthMonth;birthDay;birthYear"`.
 
 - **retry:** This boolean property indicates whether there should be a retry attempt for records that encountered errors during processing.
 
