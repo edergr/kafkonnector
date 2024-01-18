@@ -4,7 +4,9 @@
   "ROOT_FOLDER": "/data/kafkonnector",
   "KAFKA_CONNECT_URL": "localhost:9092",
   "KAFKA_SECURITY_PROTOCOL": "PLAINTEXT",
-  "KAFKA_USERNAME": "foo",
-  "KAFKA_PASSWORD": "bar",
-  "SCHEMA_REGISTRY_URL": "http://localhost:8081"
+  "KAFKA_USERNAME": "teste1",
+  "KAFKA_PASSWORD": "teste2",
+  "SCHEMA_REGISTRY_URL": "http://localhost:8081",
+  "SCHEMA_REGISTRY_SECRET": "teste1",
+  "SCHEMA_REGISTRY_KEY": "teste2"
 }
