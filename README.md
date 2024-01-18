@@ -1,4 +1,4 @@
-# Kafkonnector v1.3.2
+# Kafkonnector v1.3.3
 
 Kafkonnector is a versatile tool designed to transform large files into Kafka messages efficiently. This project leverages various technologies to provide a seamless solution for your data processing needs.
 
