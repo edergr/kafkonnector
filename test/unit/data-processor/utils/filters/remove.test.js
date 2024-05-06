@@ -3,7 +3,7 @@ const remove = require('../../../../../lib/data-processor/utils/filters/remove')
 
 describe('Remove Filter unit test', () => {
   describe('Success Cases', () => {
-    it('Should apply the Rename Filter successfully', () => {
+    it('Should apply the Remove Filter successfully', () => {
       const fields = ['campo1', 'campo2', 'campo3', 'campo4'];
       const values = ['1', '2', '3', '4'];
       const job = {

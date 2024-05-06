@@ -5,6 +5,15 @@ const applyFilters = require('../../../../lib/data-processor/utils/apply-filters
 
 describe('Apply Filsters unit test', () => {
   describe('Success Cases', () => {
+    let sandbox;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+      sandbox.spy(logger, 'error');
+    });
+
+    afterEach(() => sandbox.restore());
+
     it('Should apply all filters successfully', () => {
       const line = 'Abacate;Maça;Banana;Uva'
       const delimiter = ';';
@@ -40,8 +49,6 @@ describe('Apply Filsters unit test', () => {
     });
 
     it('Should logging error if the type does not exists', () => {
-      sinon.spy(logger, 'error');
-
       const line = 'Abacate'
       const delimiter = ';';
       const fieldNames = 'campo1';
@@ -58,11 +65,11 @@ describe('Apply Filsters unit test', () => {
 
       applyFilters(filters, delimiter, fieldNames, line);
 
-      sinon.assert.calledOnceWithExactly(
+      sandbox.assert.calledOnceWithExactly(
         logger.error,
         'Undefined type: %s',
         JSON.stringify(filters.jobs[0])
-      )
+      );
     });
   });
 });
