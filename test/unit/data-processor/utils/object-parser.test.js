@@ -1,6 +1,4 @@
-const sinon = require('sinon');
 const { assert } = require('chai');
-const { logger } = require('../../../../lib/commons');
 const objectParser = require('../../../../lib/data-processor/utils/object-parser');
 
 describe('Object Parser unit test', () => {
