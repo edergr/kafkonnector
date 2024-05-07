@@ -1,39 +1,51 @@
 const sinon = require('sinon');
-const { assert } = require('chai');
-const fs = require('fs').promises;
-const processRetryFile = require('../../../lib/file-processor/process-retry-files');
+const fs = require('fs');
+const { logger } = require('../../../lib/commons');
+const fileProcessor = require('../../../lib/file-processor');
 
-describe.skip('processRetryFile', () => {
+describe('Process Retry File unit tests', () => {
+  const pathRetry = '/data/kafkonnector/connector1/retry';
+  const pathPending = '/data/kafkonnector/connector1/pending';
+  const fileName = 'pending1.txt';
+  const filePath = `${pathRetry}/${fileName}`;
+  let sandbox;
+
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+
+    fs.mkdirSync(pathRetry, { recursive: true });
+    fs.mkdirSync(pathPending, { recursive: true });
+    fs.writeFile(filePath, '', () => { });
+  });
+
   afterEach(() => {
-    sinon.restore();
+    sandbox.restore();
+    fs.unlink(pathRetry, () => { });
+    fs.unlink(pathPending, () => { });
   });
 
-  it('should move the retry file to the pending folder and log success message', async () => {
-    const filePath = '/data/kafkonnector/connector1/retry/retry_file.txt';
-    const fileName = 'retry_file.txt';
-    const processedFolderPath = '/data/kafkonnector/connector1/pending';
-    const processingFilePath = `${processedFolderPath}/${fileName}`;
+  it('Should process file and log information', async () => {
+    sandbox.spy(logger, 'info');
 
-    const renameStub = sinon.stub(fs, 'rename').resolves();
+    await fileProcessor.processRetryFile(filePath);
 
-    const loggerInfoStub = sinon.stub(console, 'info');
-
-    await processRetryFile(filePath);
-
-    assert.isTrue(renameStub.calledOnceWithExactly(filePath, processingFilePath));
-    assert.isTrue(loggerInfoStub.calledOnceWithExactly('Retry file moved to pending folder to be processed'));
+    sandbox.assert.calledWithMatch(
+      logger.info,
+      'Retry file moved to pending folder to be processed'
+    )
   });
 
-  it('should log an error if file processing fails', async () => {
+  it('Should log an error if processing retry file fails', async () => {
     const filePath = '/data/kafkonnector/connector1/retry/retry_file.txt';
-    const error = new Error('Failed to move file');
+    sandbox.spy(logger, 'error');
 
-    sinon.stub(fs, 'rename').rejects(error);
-    const loggerErrorStub = sinon.stub(console, 'error');
-
-    await processRetryFile(filePath);
-
-    assert.isTrue(loggerErrorStub.calledOnce);
-    assert.strictEqual(loggerErrorStub.getCall(0).args[0], `Error to process retry file: ${error}`);
+    try {
+      await fileProcessor.processRetryFile(filePath);
+    } catch (error) {
+      sandbox.assert.calledOnceWithExactaly(
+        logger.error,
+        `Error to process retry file: ${error}`
+      );
+    }
   });
 });

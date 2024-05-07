@@ -2,7 +2,7 @@ const sinon = require('sinon');
 const { assert } = require('chai');
 const { logger } = require('../../../lib/commons');
 const fs = require('fs').promises;
-const createRetryFile = require('../../../lib/file-processor/create-retry-file');
+const createRetryFile = require('../../../lib/handle-files/create-retry-file');
 
 describe('Create Retry File unit tests', () => {
   let sandbox;
