@@ -26,7 +26,7 @@ process.on('SIGTERM', shutdown)
   .on('SIGINT', shutdown)
   .on('SIGHUP', shutdown)
   .on('uncaughtException', (err) => {
-    logger.error('uncaughtException caught the error: ', err);
+    logger.error('uncaughtException caught the error: %s', err);
     throw err;
   })
   .on('unhandledRejection', (err, promise) => {
