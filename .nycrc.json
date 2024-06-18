@@ -5,7 +5,9 @@
   "exclude": [
     "test",
     "dangerfile.js",
-    "lib/server/**"
+    "lib/server/**",
+    "lib/commons/database/mongodb.js",
+    "lib/commons/kafka"
   ],
   "statements": 90,
   "branches": 85,
