@@ -8,6 +8,7 @@ Kafkonnector is a versatile tool designed to transform large files into Kafka me
 - [Usage](#usage)
 - [API Endpoints](#api-endpoints)
 - [Validation Schema](#validation-schema)
+- [Filters Operation](#filters-operation)
 - [Folder Structure](#folder-structure)
 - [Processing Logic](#processing-logic)
 - [Performance](#performance)
@@ -27,7 +28,7 @@ Kafkonnector utilizes various environment variables to configure different aspec
 - **PORT:** `3000`  
   The port number on which the service will run.
 
-- **MONGODB_URI:** `mongodb://localhost:27017/connectors`  
+- **MONGODB_URI:** `mongodb://localhost:27017/kafkonnector`  
   The connection URI to the MongoDB database where connector configurations are stored.
 
 - **ROOT_FOLDER:** `/data/kafkonnector`  
@@ -249,103 +250,268 @@ When making a POST request to configure a connector, the request payload is vali
 }
 ```
 
-### Filters Operation
+## Filters Operation
 
 The filters are not mandatory; however, if you wish to include filters in your connector, it is mandatory to provide the `sequence` and the `jobs`. The number of `jobs` must be equal to the number of names in the `sequence`, which should be separated by the delimiter `;`.
 
 The existing filters are:
 
+### Rename
+
+The `rename` filter is responsible for renaming a specific field. Since the user defines the connector, they will set the field names in the fieldNames property. However, if needed, the `rename` filter can change the name of a field before writing the message to Kafka.
+Usage example:
+
+Suppose the fieldNames defined in the connector's POST request are: `"name;age;birthDate"`.
+
+Given the line in the file arrives as: `"Liz;33;19901202"`.
+
 ```json
-"rename": "Renames the field name",
-"create": "Creates a new field",
-"drop": "Drop the entire line based on a logical operation according to the value of a field",
-"positionedDrop": "Drop the entire line based on a logical operation according to the value of a specific digit",
-"remove": "Removes a field",
-"append": "Append two fields into a new one"
-"set": "Assign a specific range position in the current line to a field"
-```
-
-Below is an example sequence. All fields listed within each filter are mandatory.
-
-The operation of filters occurs as follows:
-
-Suppose the `sequence` is defined as follows:
-```json
-"sequence": "renameName;dropAge;dropAgeStartsWith9;removeAge;appendMonthAndDay;appendMonthDayAndYear;createNewFieldTest"
-```
-
-And the jobs are specified in the `jobs` array, following the example provided in the sequence:
-```json
-"jobs": [
-  {
-    "name": "renameName",
-    "type": "rename",
-    "field": "name",
-    "target": "userName"
-  },
-  {
-    "name" : "dropAge", 
-    "type" : "drop", 
-    "fieldTarget" : "age", 
-    "comparsion" : {
-      "operator" : "===", 
-      "value" : "100"
+"filters": {
+  "sequence": "renameName",
+  "jobs": [
+    {
+      "name": "renameName",
+      "type": "rename",
+      "field": "name",
+      "target": "userName"
     }
-  }, 
-  {
-    "name" : "dropAgeStartsWith9", 
-    "type" : "positionedDrop", 
-    "fieldTarget" : "age", 
-    "comparsion" : {
-      "operator" : "===", 
-      "value" : "9", 
-      "digit" : 0
-    }
-  }, 
-  {
-    "name": "removeAge",
-    "type": "remove",
-    "field": "age"
-  },
-  {
-    "name": "appendMonthAndDay",
-    "type" : "append", 
-    "firstField" : "birthMonth", 
-    "secondField" : "birthDay", 
-    "newFieldName" : "birthMonthAndDay"
-  },
-  {
-    "name": "appendMonthDayAndYear",
-    "type" : "append", 
-    "firstField" : "birthMonthAndDay", 
-    "secondField" : "birthYear", 
-    "newFieldName" : "birthDate"
-  },
-  {
-    "name": "createNewFieldTest",
-    "type" : "create", 
-    "fieldName" : "test", 
-    "fieldValue" : "123"
-  }
-]
+  ]
+}
 ```
 
-Applying the filters above to a file containing the fields: `"name;age;birthMonth;birthDay;birthYear"`, the payload to be written to the topic will be:
+The final result when the filter is applied will be:
 
 ```json
 {
   "userName": "Liz",
-  "birthDate": "12021990",
-  "test": "123"
+  "age": "33",
+  "birthDate": "19901202"
 }
 ```
 
-In this example, the `name` property was renamed to `userName`, the `age` property was removed, and the properties related to birth were concatenated according to the sequence of filters: first `appendMonthAndDay`, followed by `appendMonthDayAndYear`.
+### Create
 
-This mechanism allows flexible and customizable transformations to be applied to the data before being written to the specified Kafka topic.
-  
-The provided filters currently include three types: `rename`, `remove`, and `append`.
+The `create` filter will create a new field in the body of the message to be sent to Kafka.
 
+Usage example for the same case above: `"name;age;birthDate"`.
+
+Given the line in the file arrives as: `"Liz;33;19901202"`.
+
+```json
+"filters": {
+  "sequence": "createAddress",
+  "jobs": [
+    {
+      "name": "createAddress",
+      "type": "create",
+      "fieldName": "address",
+      "fieldValue": "Av. Test, 123"
+    }
+  ]
+}
+```
+
+The final result when the filter is applied will be:
+
+```json
+{
+  "name": "Liz",
+  "age": "33",
+  "birthDate": "19901202",
+  "address": "Av. Test, 123"
+}
+```
+
+### Drop
+
+The `drop` filter will eliminate a row from being written to Kafka based on a logical operation with an expected value.
+
+Considering the following lines: `["Liz;33;19901202", "Eder;13;20101202"]`
+
+```json
+"filters": {
+  "sequence": "dropAge",
+  "jobs": [
+    {
+      "name": "dropAge",
+      "type": "drop",
+      "fieldTarget": "age",
+      "comparison": {
+        "operator": "===",
+        "value": "13"
+      }
+    }
+  ]
+}
+```
+
+The final result to be written to Kafka:
+
+```json
+{
+   "name": "Liz",
+   "age": "33",
+   "birthDate": "19901202"
+}
+```
+
+### positionedDrop
+
+Similar to `drop`, `positionedDrop` will consider a specific character in the string.
+
+Considering the following lines: `["Liz;33;19901202", "Eder;13;20101202"]`
+
+```json
+"filters": {
+  "sequence": "dropNameWithIIndex1",
+  "jobs": [
+    {
+      "name": "dropNameWithIIndex1",
+      "type": "positionedDrop",
+      "fieldTarget": "name",
+      "comparison": {
+        "operator": "===",
+        "value": "i"
+        "digit" : 1
+      }
+    }
+  ]
+}
+```
+
+The final result to be written to Kafka:
+
+```json
+{
+   "name": "Eder",
+   "age": "13",
+   "birthDate": "20101202"
+}
+```
+
+### remove
+
+The `remove` filter will eliminate a field from being written to Kafka.
+
+Given the fields: `"name;age;birthDate"` and the line: `"Liz;33;19901202"`.
+
+```json
+"filters": {
+  "sequence": "removeName;removeAge",
+  "jobs": [
+    {
+      "name": "removeName",
+      "type": "remove",
+      "fieldTarget": "name"
+    },
+    {
+      "name": "removeAge",
+      "type": "remove",
+      "fieldTarget": "age"
+    }
+  ]
+}
+```
+
+The final result to be written to Kafka:
+
+```json
+{
+   "birthDate": "19901202"
+}
+```
+
+### append
+
+The `append` filter combines two properties into one, assigning the name defined in newFieldName to the resulting combined property. This filter allows merging of two fields into a single field with a specified name.
+
+Given the fields: `"name;age;birthDate"` and the line: `"Liz;33;19901202"`.
+
+```json
+"filters": {
+  "sequence": "appendNameAge;appendNameAndAgeBirthDate",
+  "jobs": [
+    {
+      "name": "appendNameAge",
+      "type": "append",
+      "firstField" : "name", 
+      "secondField" : "age", 
+      "newFieldName" : "nameAndAge"
+    },
+    {
+      "name": "appendNameAndAgeBirthDate",
+      "type": "append",
+      "firstField" : "nameAndAge", 
+      "secondField" : "birthDate", 
+      "newFieldName" : "nameAndAgeAndBirthDate"
+    }
+  ]
+}
+```
+
+The final result to be written to Kafka:
+
+```json
+{
+   "nameAndAgeAndBirthDate": "Liz3319901202"
+}
+```
+
+### set
+
+The `set` filter is highly specific, and its usage should be carefully considered. If your file lacks clear delimiters such as ';', you can use the set filter to assign fields and their respective values without needing to preprocess the file before submitting it to the Kafkonnector.
+
+The property `positionTarget` is used to indicate the position within the array where this value should be placed.
+
+Given the fields: `"name;age;birthDate"` and the file line: `[ "Liz 3319901202", "Eder1320101202" ]`.
+
+```json
+"filters": {
+  "sequence": "setName;setAge;setBirth",
+  "jobs": [
+    {
+      "name": "setName",
+      "type": "set",
+      "positionStart" : 0, 
+      "fieldLength" : 4, 
+      "positionTarget" : 0
+    },
+    {
+      "name": "setAge",
+      "type": "set",
+      "positionStart" : 4, 
+      "fieldLength" : 2, 
+      "positionTarget" : 1
+    },
+    {
+      "name": "setBirth",
+      "type": "set",
+      "positionStart" : 6, 
+      "fieldLength" : 8, 
+      "positionTarget" : 2
+    }
+  ]
+}
+```
+
+For this case, it is essential that each line of the file has the same number of characters.
+
+The final result to be written to Kafka:
+
+```json
+{
+   "name": "Liz",
+   "age": "33",
+   "birthDate": "19901202"
+},
+{
+   "name": "Eder",
+   "age": "13",
+   "birthDate": "20101202"
+}
+```
+
+New filters are being developed such as `parseInt`, `parseString`, and others...
 
 ## Folder Structure
 
@@ -376,35 +542,6 @@ This mechanism allows for flexible handling of records, providing insight into b
 | 1    | 100,000         | 13 seconds      |  
 | 2    | 1,000,000       | 2 minutes 25 seconds |  
 | 3    | 10,000,000      | 23 minutes 8 seconds |  
-
-### Partition Details
-
-#### Test 1 (100,000 Lines)
-| Partition | Offset Range     | Total Messages |
-|-----------|------------------|-----------------|
-| 0         | 0 to 20138       | 20139           |
-| 1         | 0 to 20048       | 20049           |
-| 2         | 0 to 20079       | 20080           |
-| 3         | 0 to 19850       | 19851           |
-| 4         | 0 to 19880       | 19881           |
-
-#### Test 2 (1,000,000 Lines)
-| Partition | Offset Range     | Total Messages |
-|-----------|------------------|-----------------|
-| 0         | 0 to 200001      | 200002          |
-| 1         | 0 to 200287      | 200288          |
-| 2         | 0 to 199810      | 199811          |
-| 3         | 0 to 199654      | 199655          |
-| 4         | 0 to 200243      | 200244          |
-
-#### Test 3 (10,000,000 Lines)
-| Partition | Offset Range     | Total Messages |
-|-----------|------------------|-----------------|
-| 0         | 0 to 1999243     | 1999244         |
-| 1         | 0 to 2000019     | 2000020         |
-| 2         | 0 to 1999619     | 1999620         |
-| 3         | 0 to 2000654     | 2000655         |
-| 4         | 0 to 2000460     | 2000461         |
 
 This showcases the efficient performance of our service in handling large datasets and processing them swiftly.
 
