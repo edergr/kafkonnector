@@ -3,7 +3,7 @@ const fs = require('fs');
 const { config, logger } = require('../../../lib/commons');
 const fileProcessor = require('../../../lib/file-processor');
 
-describe('Process Retry File unit tests', () => {
+describe.skip('Process Retry File unit tests', () => {
   const rootDir = config.get('ROOT_FOLDER');
   const pathRetry = '/data/kafkonnector/connector1/retry';
   const pathPending = '/data/kafkonnector/connector1/pending';

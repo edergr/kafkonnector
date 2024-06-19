@@ -1,6 +1,6 @@
 {
   "PORT": 3000,
-  "MONGODB_URI": "mongodb://localhost:27017/connectors",
+  "MONGODB_URI": "mongodb://localhost:27017/kafkonnector",
   "ROOT_FOLDER": "/data/kafkonnector",
   "KAFKA_CONNECT_URL": "localhost:9092",
   "KAFKA_SECURITY_PROTOCOL": "PLAINTEXT",
