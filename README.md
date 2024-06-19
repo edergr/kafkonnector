@@ -253,11 +253,25 @@ When making a POST request to configure a connector, the request payload is vali
 
 The filters are not mandatory; however, if you wish to include filters in your connector, it is mandatory to provide the `sequence` and the `jobs`. The number of `jobs` must be equal to the number of names in the `sequence`, which should be separated by the delimiter `;`.
 
+The existing filters are:
+
+```json
+"rename": "Renames the field name",
+"create": "Creates a new field",
+"drop": "Drop the entire line based on a logical operation according to the value of a field",
+"positionedDrop": "Drop the entire line based on a logical operation according to the value of a specific digit",
+"remove": "Removes a field",
+"append": "Append two fields into a new one"
+"set": "Assign a specific range position in the current line to a field"
+```
+
+Below is an example sequence. All fields listed within each filter are mandatory.
+
 The operation of filters occurs as follows:
 
 Suppose the `sequence` is defined as follows:
 ```json
-"sequence": "renameName;removeAge;appendMonthAndDay;appendMonthDayAndYear"
+"sequence": "renameName;dropAge;dropAgeStartsWith9;removeAge;appendMonthAndDay;appendMonthDayAndYear;createNewFieldTest"
 ```
 
 And the jobs are specified in the `jobs` array, following the example provided in the sequence:
@@ -269,6 +283,25 @@ And the jobs are specified in the `jobs` array, following the example provided i
     "field": "name",
     "target": "userName"
   },
+  {
+    "name" : "dropAge", 
+    "type" : "drop", 
+    "fieldTarget" : "age", 
+    "comparsion" : {
+      "operator" : "===", 
+      "value" : "100"
+    }
+  }, 
+  {
+    "name" : "dropAgeStartsWith9", 
+    "type" : "positionedDrop", 
+    "fieldTarget" : "age", 
+    "comparsion" : {
+      "operator" : "===", 
+      "value" : "9", 
+      "digit" : 0
+    }
+  }, 
   {
     "name": "removeAge",
     "type": "remove",
@@ -287,6 +320,12 @@ And the jobs are specified in the `jobs` array, following the example provided i
     "firstField" : "birthMonthAndDay", 
     "secondField" : "birthYear", 
     "newFieldName" : "birthDate"
+  },
+  {
+    "name": "createNewFieldTest",
+    "type" : "create", 
+    "fieldName" : "test", 
+    "fieldValue" : "123"
   }
 ]
 ```
@@ -296,7 +335,8 @@ Applying the filters above to a file containing the fields: `"name;age;birthMont
 ```json
 {
   "userName": "Liz",
-  "birthDate": "12021990"
+  "birthDate": "12021990",
+  "test": "123"
 }
 ```
 

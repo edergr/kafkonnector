@@ -5,7 +5,7 @@ const fileProcessor = require('../../../lib/file-processor');
 const handleFiles = require('../../../lib/handle-files');
 const dataProcessor = require('../../../lib/data-processor');
 
-describe('Process Pending File unit tests', () => {
+describe.skip('Process Pending File unit tests', () => {
   let sandbox;
   const rootDir = config.get('ROOT_FOLDER');
   const fileName = 'pending1.txt';

@@ -41,7 +41,7 @@ describe('Mongodb unit tests', () => {
       const collection = db.getCollection(collectionNamespace);
 
       assert.isDefined(collection);
-      assert.strictEqual(collection.namespace, 'connectors-test.test');
+      assert.strictEqual(collection.namespace, 'kafkonnector-test.test');
     });
 
     it('Should return an ObjectId.', async () => {
