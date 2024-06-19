@@ -355,7 +355,7 @@ The final result to be written to Kafka:
 }
 ```
 
-### positionedDrop
+### PositionedDrop
 
 Similar to `drop`, `positionedDrop` will consider a specific character in the string.
 
