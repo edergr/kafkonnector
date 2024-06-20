@@ -10,7 +10,6 @@ Kafkonnector is a versatile tool designed to transform large files into Kafka me
 - [Validation Schema](#validation-schema)
 - [Filters Operation](#filters-operation)
 - [Folder Structure](#folder-structure)
-- [Processing Logic](#processing-logic)
 - [Performance](#performance)
 
 ## Installation
@@ -167,6 +166,9 @@ When making a POST request to configure a connector, the request payload is vali
     },
     "fieldNames": {
       "type": "string"
+    },
+    "propertiesPosition": {
+      "type": "array"
     },
     "filters": {
       "type": "object",
@@ -523,7 +525,7 @@ When creating new connectors using the POST method, the `mongoWatcher` automatic
 
 - `/data/kafkonnector/subscription/retry`: For lines that encountered processing errors and were not successfully written to the Kafka topic, these lines are compiled into a file within the retry folder. 
 
-## Processing Logic
+### Processing Folder Logic
 
 - If the connector is configured with the `retry` property set to true, after the initial processing, any files in the retry folder are moved back to the pending folder for reprocessing.
 
