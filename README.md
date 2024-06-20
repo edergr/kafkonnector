@@ -252,9 +252,9 @@ When making a POST request to configure a connector, the request payload is vali
 }
 ```
 
-## Filters Operation
+## Filters Operations
 
-The filters are not mandatory; however, if you wish to include filters in your connector, it is mandatory to provide the `sequence` and the `jobs`. The number of `jobs` must be equal to the number of names in the `sequence`, which should be separated by the delimiter `;`.
+The filters are not mandatory; however, if you wish to include filters in your connector, it is required to provide the `sequence` and the `jobs`. The number of `jobs` must be equal to the number of names in the `sequence`, which should be separated by the delimiter `;`.
 
 The existing filters are:
 
