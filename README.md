@@ -539,7 +539,7 @@ This mechanism allows for flexible handling of records, providing insight into b
 
 ## Performance
 
-| Test | Lines Processed | Execution Time |  
+| Test | Processed Lines | Execution Time |  
 |------|-----------------|-----------------|  
 | 1    | 100,000         | 13 seconds      |  
 | 2    | 1,000,000       | 2 minutes 25 seconds |  
