@@ -329,8 +329,10 @@ When making a POST request to configure a connector, the request payload is vali
 <br>`schemaValueId` - ID of the Schema related to the topic.
 <br>`fieldNames` - Names of the fields representing data in the file line.
 <br>`propertiesPosition` - Option to avoid using the filter: set. propertiesPosition is an array where each element should contain the initial character that represents where each field starts. To define the end character, the service itself considers the next position in the array minus 1. For example, assuming the received line in the file is: 'Eder3319901202', defining propertiesPosition as: [0, 4, 6], the service will understand that the line is divided as follows: 
-<br>0   4 6
-<br>Eder3319901202' thus, it will format it as follows to apply the filters: 'Eder;33;19901202';
+```json
+0   4 6
+Eder3319901202 thus, it will format it as follows to apply the filters: 'Eder;33;19901202';
+```
 <br>`filters` - Definition of filters.
 <br>`retry` - Defines whether to perform write retry or not.
 
