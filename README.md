@@ -25,13 +25,13 @@ npm start
 Kafkonnector utilizes various environment variables to configure different aspects of the service. Here are the available variables and their default values:
 
 - **PORT:** `3000`  
-  The port number on which the service will run.
+  Port on which the service will run.
 
 - **MONGODB_URI:** `mongodb://localhost:27017/kafkonnector`  
-  The connection URI to the MongoDB database where connector configurations are stored.
+  Connection URI to the MongoDB database where connector configurations are stored.
 
 - **ROOT_FOLDER:** `/data/kafkonnector`  
- The root directory in which the service organizes folders for pending, processed, and retry files.
+  Root directory in which the service organizes folders for pending, processed, and retry files.
 
 - **KAFKA_CONNECT_URL:** `localhost:9092`  
   The connection URL to the Kafka cluster.
@@ -40,13 +40,13 @@ Kafkonnector utilizes various environment variables to configure different aspec
   The security protocol used to communicate with the Kafka cluster.
 
 - **KAFKA_USERNAME:** `username`  
-  The username, if required, for authentication to the Kafka cluster.
+  Username, if required, for authentication to the Kafka cluster.
 
 - **KAFKA_PASSWORD:** `userpass`  
-  The password corresponding to the username for authentication to the Kafka cluster.
+  Password corresponding to the username for authentication to the Kafka cluster.
 
 - **SCHEMA_REGISTRY_URL:** `http://localhost:8081`  
-  The URL of the Schema Registry, if in use.
+  Schema Registry URL, if in use.
 
 Make sure to adjust these variables according to your environment's requirements before starting the Kafkonnector service.
 
@@ -67,6 +67,7 @@ Kafkonnector exposes a set of APIs for managing connectors and efficiently proce
   'subscription'
 ]
 ```
+
 #### 2. Get Connector Configuration
 - **Endpoint:** `GET /connectors/:connector/configs`
 - **Description:** Retrieve the configuration details of a specific connector.
@@ -85,8 +86,8 @@ Kafkonnector exposes a set of APIs for managing connectors and efficiently proce
       {
         "name": "renameMobile",
         "type": "rename",
-        "field": "mobile",
-        "target": "mobileNumber"
+        "fieldTarget": "mobile",
+        "newFieldName": "mobileNumber"
       },
       {
         "name": "removeOperationName",
@@ -127,8 +128,8 @@ Kafkonnector exposes a set of APIs for managing connectors and efficiently proce
       {
         "name": "renameName",
         "type": "rename",
-        "field": "name",
-        "target": "userName"
+        "fieldTarget": "name",
+        "newFieldName": "userName"
       },
       {
         "name": "removeAge",
@@ -144,10 +145,9 @@ Kafkonnector exposes a set of APIs for managing connectors and efficiently proce
 ## Validation Schema
 A JSON schema is provided for validating the POST request payload. It ensures the correctness of the connector configuration.
 
-### Connector Configuration Validation Schema
-
 When making a POST request to configure a connector, the request payload is validated against the following JSON schema. This schema ensures the correctness and completeness of the connector configuration:
 
+### JSON
 ```json
 {
   "$id": "connectorConfig",
@@ -158,11 +158,12 @@ When making a POST request to configure a connector, the request payload is vali
     },
     "delimiter": {
       "type": "string",
-      "minLength": 1,
-      "maxLength": 1
     },
     "topic": {
       "type": "string"
+    },
+    "schemaValueId": {
+      "type": "integer"
     },
     "fieldNames": {
       "type": "string"
@@ -188,22 +189,13 @@ When making a POST request to configure a connector, the request payload is vali
               "type": {
                 "type": "string",
                 "enum": [
-                  "rename",
+                  "append",
+                  "create",
+                  "drop",
+                  "positionedDrop",
                   "remove",
-                  "append"
-                ]
-              },
-              "field": {
-                "type": "string",
-                "required": [
                   "rename",
-                  "remove"
-                ]
-              },
-              "target": {
-                "type": "string",
-                "required": [
-                  "rename"
+                  "set"
                 ]
               },
               "firstField": {
@@ -221,7 +213,84 @@ When making a POST request to configure a connector, the request payload is vali
               "newFieldName": {
                 "type": "string",
                 "required": [
-                  "append"
+                  "append",
+                  "rename"
+                ]
+              },
+              "fieldName": {
+                "type": "string",
+                "required": [
+                  "create"
+                ]
+              },
+              "fieldValue": {
+                "type": "string",
+                "required": [
+                  "create"
+                ]
+              },
+              "fieldTarget": {
+                "type": "string",
+                "required": [
+                  "remove",
+                  "rename",
+                  "drop",
+                  "positionedDrop"
+                ]
+              },
+              "comparsion": {
+                "type": "object",
+                "required": [
+                  "drop",
+                  "positionedDrop"
+                ],
+                "properties": {
+                  "operator": {
+                    "type": "string",
+                    "enum": [
+                      "===",
+                      "!==",
+                      ">",
+                      "<",
+                      ">=",
+                      "<="
+                    ],
+                    "required": [
+                      "drop",
+                      "positionedDrop"
+                    ]
+                  },
+                  "value": {
+                    "type": "string",
+                    "required": [
+                      "drop",
+                      "positionedDrop"
+                    ]
+                  },
+                  "digit": {
+                    "type": "integer",
+                    "required": [
+                      "positionedDrop"
+                    ]
+                  }
+                }
+              },
+              "positionStart": {
+                "type": "integer",
+                "required": [
+                  "set"
+                ]
+              },
+              "fieldLength": {
+                "type": "integer",
+                "required": [
+                  "set"
+                ]
+              },
+              "positionTarget": {
+                "type": "integer",
+                "required": [
+                  "set"
                 ]
               }
             },
@@ -244,11 +313,149 @@ When making a POST request to configure a connector, the request payload is vali
   },
   "required": [
     "name",
-    "delimiter",
     "topic",
     "fieldNames",
     "retry"
   ]
+}
+```
+
+### Properties Definition
+
+#### Top-Level Properties
+`name` - Represents the name of the connector. This name will also be used to create a folder in ROOT_FOLDER and consequently receive the folders pending, retry, and processed.
+`delimiter` - This property is used to split the lines of files. If not specified in the connector configuration, the default value ';' will be considered.
+`topic` - Name of the topic to which this connector should write messages.
+`schemaValueId` - ID of the Schema related to the topic.
+`fieldNames` - Names of the fields representing data in the file line.
+`propertiesPosition` - Option to avoid using the filter: set. propertiesPosition is an array where each element should contain the initial character that represents where each field starts. To define the end character, the service itself considers the next position in the array minus 1. For example, assuming the received line in the file is: 'Eder3319901202', defining propertiesPosition as: [0, 4, 6], the service will understand that the line is divided as follows: 
+0   4 6
+Eder3319901202' thus, it will format it as follows to apply the filters: 'Eder;33;19901202';
+`filters` - Definition of filters.
+`retry` - Defines whether to perform write retry or not.
+
+#### Properties of filters
+`filters.sequence` - Sequence in which jobs should be executed: 'renameUser;removeAddress;createCode'
+`filters.jobs` - Definition of jobs (explained later with examples)
+
+#### Properties of jobs (inside filters)
+`filters.jobs[].name` - Job name, same name used in the sequence property.
+`filters.jobs[].type` - Job type: append, create, drop, positionedDrop, remove, rename, and set.
+`filters.jobs[].firstField` - First field when applying the append filter. 
+`filters.jobs[].secondField` - Second field when applying the append filter. 
+`filters.jobs[].newFieldName` - New field name, used for append and rename operations.
+`filters.jobs[].fieldName` - New field name in the create filter.
+`filters.jobs[].fieldValue` - Value of the new field in the create filter.
+`filters.jobs[].fieldTarget` - Target field for drop, positionedDrop, remove, and rename filters.
+`filters.jobs[].comparison` - Object for drop and positionedDrop filters.
+`filters.jobs[].comparison.operator` - Type of operation to validate whether to remove the line or not. Used in drop and positionedDrop filters.
+`filters.jobs[].comparison.value` - Value considered for validation. Used in drop and positionedDrop filters.
+`filters.jobs[].comparison.digit` - Only for positionedDrop filter, represents the index of the character for validation.
+`filters.jobs[].positionStart` - Used in set filter to define the starting index in the string where the field begins.
+`filters.jobs[].fieldLength` - Used in set filter to define the length of this field.
+`filters.jobs[].positionTarget` - Used in set filter to define the index where it should be positioned in the message.
+
+## Schema Analysis
+The schema is a JSON object with an identifier ($id) "connectorConfig".
+It includes various properties, some of which are required and others optional.
+
+### Required Properties
+The properties that are necessary for the JSON object to be valid, as defined in the "required" list at the end of the schema, are:
+`name`: Must be a string.
+`topic`: Must be a string.
+`fieldNames`: Must be a string.
+`retry`: Must be a boolean, with a default value of false if not specified.
+
+### Optional Properties
+The properties that are not required and may or may not be present in the JSON object are:
+`delimiter`: Must be a string
+`schemaValueId`: Must be an integer.
+`propertiesPosition`: Must be an array.
+`filters`: Must be an object with its own internal structure and specific requirements.
+
+### Structure of the filters Property
+If the filters property is present, it must include:
+`sequence`: A string (required).
+`jobs`: An array with at least one item (defined by minItems: 1). Each item is an object that must contain at least:
+ - `name`: A string.
+ - `type`: A string that must be one of the specific values: "append", "create", "drop", "positionedDrop", "remove", "rename", "set".
+
+Depending on the value of type, some additional properties may be required:
+`firstField`, `secondField`: Required for type `append`. 
+`newFieldName`:  Required for type `append` and `rename`.
+`fieldName`, `fieldValue`: Required for type `create`.
+`fieldTarget`: Required for types `remove`, `drop`, `positionedDrop` and `rename`.
+`comparison`: Required for types `drop`, `positionedDrop`. Must contain `operator` and `value`, and `digit` additionally for `positionedDrop`. `operator` must be one of the specific values: ===, !==, >, <, >=, <=.
+`positionStart`, `fieldLength`, `positionTarget`: Required for type `set`.
+
+### Summary of Rules
+Required at the top level: `name`, `topic`, `fieldNames`, `retry`.
+Optional at the top level: `delimiter`, `schemaValueId`, `propertiesPosition`, `filters`.
+Internal rules for `filters`:
+`sequence` and `jobs` are required.
+Each job must have `name` and `type`.
+Additional properties for `jobs` depend on the value of `type`.
+
+### Example of a Valid Object
+Here is an example of a valid JSON object based on this schema:
+
+```json
+{
+  "name": "exampleConnector",
+  "delimiter": ";",
+  "topic": "exampleTopic",
+  "fieldNames": "field1,field2",
+  "retry": true,
+  "filters": {
+    "sequence": "job1;job2;job3;job4;job5;job6",
+    "jobs": [
+      {
+        "name": "job1",
+        "type": "rename",
+        "fieldTarget": "oldFieldName",
+        "newFieldName": "newFieldName"
+      },
+      {
+        "name": "job2",
+        "type": "append",
+        "firstField": "field1",
+        "secondField": "field2",
+        "newFieldName": "appendedField"
+      },
+      {
+        "name": "job3",
+        "type": "create",
+        "fieldName": "newField",
+        "fieldValue": "value"
+      },
+      {
+        "name": "job4",
+        "type": "drop",
+        "fieldTarget": "fieldToDrop",
+        "comparsion": {
+          "operator": "!==",
+          "value": "someValue"
+        }
+      },
+      {
+        "name": "job5",
+        "type": "positionedDrop",
+        "fieldTarget": "fieldToDrop",
+        "comparsion": {
+          "operator": "===",
+          "value": "someValue",
+          "digit": 3
+        }
+      },
+      {
+        "name": "job6",
+        "type": "set",
+        "positionStart": 0,
+        "fieldLength": 5,
+        "positionTarget": 10
+      }
+    ]
+  }
 }
 ```
 
@@ -274,8 +481,8 @@ Given the line in the file arrives as: `"Liz;33;19901202"`.
     {
       "name": "renameName",
       "type": "rename",
-      "field": "name",
-      "target": "userName"
+      "fieldTarget": "name",
+      "newFieldName": "userName"
     }
   ]
 }
@@ -391,7 +598,7 @@ The final result to be written to Kafka:
 }
 ```
 
-### remove
+### Remove
 
 The `remove` filter will eliminate a field from being written to Kafka.
 
@@ -423,7 +630,7 @@ The final result to be written to Kafka:
 }
 ```
 
-### append
+### Append
 
 The `append` filter combines two properties into one, assigning the name defined in newFieldName to the resulting combined property. This filter allows merging of two fields into a single field with a specified name.
 
@@ -459,7 +666,7 @@ The final result to be written to Kafka:
 }
 ```
 
-### set
+### Set
 
 The `set` filter is highly specific, and its usage should be carefully considered. If your file lacks clear delimiters such as ';', you can use the set filter to assign fields and their respective values without needing to preprocess the file before submitting it to the Kafkonnector.
 
