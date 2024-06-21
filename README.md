@@ -324,36 +324,36 @@ When making a POST request to configure a connector, the request payload is vali
 
 #### Top-Level Properties
 `name` - Represents the name of the connector. This name will also be used to create a folder in ROOT_FOLDER and consequently receive the folders pending, retry, and processed.
-`delimiter` - This property is used to split the lines of files. If not specified in the connector configuration, the default value ';' will be considered.
-`topic` - Name of the topic to which this connector should write messages.
-`schemaValueId` - ID of the Schema related to the topic.
-`fieldNames` - Names of the fields representing data in the file line.
-`propertiesPosition` - Option to avoid using the filter: set. propertiesPosition is an array where each element should contain the initial character that represents where each field starts. To define the end character, the service itself considers the next position in the array minus 1. For example, assuming the received line in the file is: 'Eder3319901202', defining propertiesPosition as: [0, 4, 6], the service will understand that the line is divided as follows: 
-0   4 6
-Eder3319901202' thus, it will format it as follows to apply the filters: 'Eder;33;19901202';
-`filters` - Definition of filters.
-`retry` - Defines whether to perform write retry or not.
+<br>`delimiter` - This property is used to split the lines of files. If not specified in the connector configuration, the default value ';' will be considered.
+<br>`topic` - Name of the topic to which this connector should write messages.
+<br>`schemaValueId` - ID of the Schema related to the topic.
+<br>`fieldNames` - Names of the fields representing data in the file line.
+<br>`propertiesPosition` - Option to avoid using the filter: set. propertiesPosition is an array where each element should contain the initial character that represents where each field starts. To define the end character, the service itself considers the next position in the array minus 1. For example, assuming the received line in the file is: 'Eder3319901202', defining propertiesPosition as: [0, 4, 6], the service will understand that the line is divided as follows: 
+<br>0   4 6
+<br>Eder3319901202' thus, it will format it as follows to apply the filters: 'Eder;33;19901202';
+<br>`filters` - Definition of filters.
+<br>`retry` - Defines whether to perform write retry or not.
 
 #### Properties of filters
 `filters.sequence` - Sequence in which jobs should be executed: 'renameUser;removeAddress;createCode'
-`filters.jobs` - Definition of jobs (explained later with examples)
+<br>`filters.jobs` - Definition of jobs (explained later with examples)
 
 #### Properties of jobs (inside filters)
 `filters.jobs[].name` - Job name, same name used in the sequence property.
-`filters.jobs[].type` - Job type: append, create, drop, positionedDrop, remove, rename, and set.
-`filters.jobs[].firstField` - First field when applying the append filter. 
-`filters.jobs[].secondField` - Second field when applying the append filter. 
-`filters.jobs[].newFieldName` - New field name, used for append and rename operations.
-`filters.jobs[].fieldName` - New field name in the create filter.
-`filters.jobs[].fieldValue` - Value of the new field in the create filter.
-`filters.jobs[].fieldTarget` - Target field for drop, positionedDrop, remove, and rename filters.
-`filters.jobs[].comparison` - Object for drop and positionedDrop filters.
-`filters.jobs[].comparison.operator` - Type of operation to validate whether to remove the line or not. Used in drop and positionedDrop filters.
-`filters.jobs[].comparison.value` - Value considered for validation. Used in drop and positionedDrop filters.
-`filters.jobs[].comparison.digit` - Only for positionedDrop filter, represents the index of the character for validation.
-`filters.jobs[].positionStart` - Used in set filter to define the starting index in the string where the field begins.
-`filters.jobs[].fieldLength` - Used in set filter to define the length of this field.
-`filters.jobs[].positionTarget` - Used in set filter to define the index where it should be positioned in the message.
+<br>`filters.jobs[].type` - Job type: append, create, drop, positionedDrop, remove, rename, and set.
+<br>`filters.jobs[].firstField` - First field when applying the append filter. 
+<br>`filters.jobs[].secondField` - Second field when applying the append filter. 
+<br>`filters.jobs[].newFieldName` - New field name, used for append and rename operations.
+<br>`filters.jobs[].fieldName` - New field name in the create filter.
+<br>`filters.jobs[].fieldValue` - Value of the new field in the create filter.
+<br>`filters.jobs[].fieldTarget` - Target field for drop, positionedDrop, remove, and rename filters.
+<br>`filters.jobs[].comparison` - Object for drop and positionedDrop filters.
+<br>`filters.jobs[].comparison.operator` - Type of operation to validate whether to remove the line or not. Used in drop and positionedDrop filters.
+<br>`filters.jobs[].comparison.value` - Value considered for validation. Used in drop and positionedDrop filters.
+<br>`filters.jobs[].comparison.digit` - Only for positionedDrop filter, represents the index of the character for validation.
+<br>`filters.jobs[].positionStart` - Used in set filter to define the starting index in the string where the field begins.
+<br>`filters.jobs[].fieldLength` - Used in set filter to define the length of this field.
+<br>`filters.jobs[].positionTarget` - Used in set filter to define the index where it should be positioned in the message.
 
 ## Schema Analysis
 The schema is a JSON object with an identifier ($id) "connectorConfig".
@@ -361,40 +361,40 @@ It includes various properties, some of which are required and others optional.
 
 ### Required Properties
 The properties that are necessary for the JSON object to be valid, as defined in the "required" list at the end of the schema, are:
-`name`: Must be a string.
-`topic`: Must be a string.
-`fieldNames`: Must be a string.
-`retry`: Must be a boolean, with a default value of false if not specified.
+<br>`name`: Must be a string.
+<br>`topic`: Must be a string.
+<br>`fieldNames`: Must be a string.
+<br>`retry`: Must be a boolean, with a default value of false if not specified.
 
 ### Optional Properties
 The properties that are not required and may or may not be present in the JSON object are:
-`delimiter`: Must be a string
-`schemaValueId`: Must be an integer.
-`propertiesPosition`: Must be an array.
-`filters`: Must be an object with its own internal structure and specific requirements.
+<br>`delimiter`: Must be a string
+<br>`schemaValueId`: Must be an integer.
+<br>`propertiesPosition`: Must be an array.
+<br>`filters`: Must be an object with its own internal structure and specific requirements.
 
 ### Structure of the filters Property
 If the filters property is present, it must include:
-`sequence`: A string (required).
-`jobs`: An array with at least one item (defined by minItems: 1). Each item is an object that must contain at least:
- - `name`: A string.
- - `type`: A string that must be one of the specific values: "append", "create", "drop", "positionedDrop", "remove", "rename", "set".
+<br>`sequence`: A string (required).
+<br>`jobs`: An array with at least one item (defined by minItems: 1) 
+<br>Each item is an object that must contain at least:
+<br>- `name`: A string.
+<br>- `type`: A string that must be one of the specific values: "append", "create", "drop", "positionedDrop", "remove", "rename", "set".
 
 Depending on the value of type, some additional properties may be required:
-`firstField`, `secondField`: Required for type `append`. 
-`newFieldName`:  Required for type `append` and `rename`.
-`fieldName`, `fieldValue`: Required for type `create`.
-`fieldTarget`: Required for types `remove`, `drop`, `positionedDrop` and `rename`.
-`comparison`: Required for types `drop`, `positionedDrop`. Must contain `operator` and `value`, and `digit` additionally for `positionedDrop`. `operator` must be one of the specific values: ===, !==, >, <, >=, <=.
-`positionStart`, `fieldLength`, `positionTarget`: Required for type `set`.
+<br>`firstField`, `secondField`: Required for type `append`. 
+<br>`newFieldName`:  Required for type `append` and `rename`.
+<br>`fieldName`, `fieldValue`: Required for type `create`.
+<br>`fieldTarget`: Required for types `remove`, `drop`, `positionedDrop` and `rename`.
+<br>`comparison`: Required for types `drop`, `positionedDrop`. Must contain `operator` and `value`, and `digit` additionally for `positionedDrop`. `operator` must be one of the specific values: ===, !==, >, <, >=, <=.
+<br>`positionStart`, `fieldLength`, `positionTarget`: Required for type `set`.
 
 ### Summary of Rules
-Required at the top level: `name`, `topic`, `fieldNames`, `retry`.
-Optional at the top level: `delimiter`, `schemaValueId`, `propertiesPosition`, `filters`.
-Internal rules for `filters`:
-`sequence` and `jobs` are required.
-Each job must have `name` and `type`.
-Additional properties for `jobs` depend on the value of `type`.
+<br>Required at the top level: `name`, `topic`, `fieldNames`, `retry`.
+<br>Optional at the top level: `delimiter`, `schemaValueId`, `propertiesPosition`, `filters`.
+<br>Internal rules for `filters`: `sequence` and `jobs` are required.
+<br>Each job must have `name` and `type`.
+<br>Additional properties for `jobs` depend on the value of `type`.
 
 ### Example of a Valid Object
 Here is an example of a valid JSON object based on this schema:
