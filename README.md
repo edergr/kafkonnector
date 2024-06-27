@@ -157,7 +157,7 @@ When making a POST request to configure a connector, the request payload is vali
       "type": "string"
     },
     "delimiter": {
-      "type": "string",
+      "type": "string"
     },
     "topic": {
       "type": "string"
@@ -169,7 +169,10 @@ When making a POST request to configure a connector, the request payload is vali
       "type": "string"
     },
     "propertiesPosition": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
     },
     "filters": {
       "type": "object",
@@ -199,51 +202,25 @@ When making a POST request to configure a connector, the request payload is vali
                 ]
               },
               "firstField": {
-                "type": "string",
-                "required": [
-                  "append"
-                ]
+                "type": "string"
               },
               "secondField": {
-                "type": "string",
-                "required": [
-                  "append"
-                ]
+                "type": "string"
               },
               "newFieldName": {
-                "type": "string",
-                "required": [
-                  "append",
-                  "rename"
-                ]
+                "type": "string"
               },
               "fieldName": {
-                "type": "string",
-                "required": [
-                  "create"
-                ]
+                "type": "string"
               },
               "fieldValue": {
-                "type": "string",
-                "required": [
-                  "create"
-                ]
+                "type": "string"
               },
               "fieldTarget": {
-                "type": "string",
-                "required": [
-                  "remove",
-                  "rename",
-                  "drop",
-                  "positionedDrop"
-                ]
+                "type": "string"
               },
               "comparsion": {
                 "type": "object",
-                "required": [
-                  "drop",
-                  "positionedDrop"
-                ],
                 "properties": {
                   "operator": {
                     "type": "string",
@@ -254,69 +231,39 @@ When making a POST request to configure a connector, the request payload is vali
                       "<",
                       ">=",
                       "<="
-                    ],
-                    "required": [
-                      "drop",
-                      "positionedDrop"
                     ]
                   },
                   "value": {
-                    "type": "string",
-                    "required": [
-                      "drop",
-                      "positionedDrop"
-                    ]
+                    "type": "string"
                   },
                   "digit": {
-                    "type": "integer",
-                    "required": [
-                      "positionedDrop"
-                    ]
+                    "type": "integer"
                   }
-                }
+                },
+                "required": ["operator", "value"]
               },
               "positionStart": {
-                "type": "integer",
-                "required": [
-                  "set"
-                ]
+                "type": "integer"
               },
               "fieldLength": {
-                "type": "integer",
-                "required": [
-                  "set"
-                ]
+                "type": "integer"
               },
               "positionTarget": {
-                "type": "integer",
-                "required": [
-                  "set"
-                ]
+                "type": "integer"
               }
             },
-            "required": [
-              "name",
-              "type"
-            ]
+            "required": ["name", "type"]
           }
         }
       },
-      "required": [
-        "sequence",
-        "jobs"
-      ]
+      "required": ["sequence", "jobs"]
     },
     "retry": {
       "type": "boolean",
       "default": false
     }
   },
-  "required": [
-    "name",
-    "topic",
-    "fieldNames",
-    "retry"
-  ]
+  "required": ["name", "topic", "fieldNames", "retry"]
 }
 ```
 
