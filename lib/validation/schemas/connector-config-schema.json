@@ -6,15 +6,22 @@
       "type": "string"
     },
     "delimiter": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 1
+      "type": "string"
     },
     "topic": {
       "type": "string"
     },
+    "schemaValueId": {
+      "type": "integer"
+    },
     "fieldNames": {
       "type": "string"
+    },
+    "propertiesPosition": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
     },
     "filters": {
       "type": "object",
@@ -34,65 +41,87 @@
               "type": {
                 "type": "string",
                 "enum": [
-                  "rename",
+                  "append",
+                  "create",
+                  "drop",
+                  "positionedDrop",
                   "remove",
-                  "append"
-                ]
-              },
-              "field": {
-                "type": "string",
-                "required": [
                   "rename",
-                  "remove"
-                ]
-              },
-              "target": {
-                "type": "string",
-                "required": [
-                  "rename"
+                  "set",
+                  "appendWithValue"
                 ]
               },
               "firstField": {
-                "type": "string",
-                "required": [
-                  "append"
-                ]
+                "type": "string"
               },
               "secondField": {
-                "type": "string",
-                "required": [
-                  "append"
-                ]
+                "type": "string"
               },
               "newFieldName": {
+                "type": "string"
+              },
+              "fieldName": {
+                "type": "string"
+              },
+              "fieldValue": {
+                "type": "string"
+              },
+              "fieldTarget": {
+                "type": "string"
+              },
+              "comparsion": {
+                "type": "object",
+                "properties": {
+                  "operator": {
+                    "type": "string",
+                    "enum": [
+                      "===",
+                      "!==",
+                      ">",
+                      "<",
+                      ">=",
+                      "<="
+                    ]
+                  },
+                  "value": {
+                    "type": "string"
+                  },
+                  "digit": {
+                    "type": "integer"
+                  }
+                },
+                "required": ["operator", "value"]
+              },
+              "positionStart": {
+                "type": "integer"
+              },
+              "fieldLength": {
+                "type": "integer"
+              },
+              "positionTarget": {
+                "type": "integer"
+              },
+              "stringToAppend": {
+                "type": "string"
+              },
+              "position": {
                 "type": "string",
-                "required": [
-                  "append"
+                "enum": [
+                  "start",
+                  "end"
                 ]
               }
             },
-            "required": [
-              "name",
-              "type"
-            ]
+            "required": ["name", "type"]
           }
         }
       },
-      "required": [
-        "sequence",
-        "jobs"
-      ]
+      "required": ["sequence", "jobs"]
     },
     "retry": {
       "type": "boolean",
       "default": false
     }
   },
-  "required": [
-    "name",
-    "delimiter",
-    "topic",
-    "fieldNames",
-    "retry"
-  ]
+  "required": ["name", "topic", "fieldNames", "retry"]
 }

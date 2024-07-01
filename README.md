@@ -1,4 +1,4 @@
-# Kafkonnector v1.4.4
+# Kafkonnector v1.4.5
 
 Kafkonnector is a versatile tool designed to transform large files into Kafka messages efficiently. This project leverages various technologies to provide a seamless solution for your data processing needs.
 
@@ -198,7 +198,8 @@ When making a POST request to configure a connector, the request payload is vali
                   "positionedDrop",
                   "remove",
                   "rename",
-                  "set"
+                  "set",
+                  "appendWithValue"
                 ]
               },
               "firstField": {
@@ -250,6 +251,16 @@ When making a POST request to configure a connector, the request payload is vali
               },
               "positionTarget": {
                 "type": "integer"
+              },
+              "stringToAppend": {
+                "type": "string"
+              },
+              "position": {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "end"
+                ]
               }
             },
             "required": ["name", "type"]
@@ -289,15 +300,17 @@ file-line: Eder3319901202
 
 #### Properties of jobs (inside filters)
 `filters.jobs[].name` - Job name, same name used in the sequence property.
-<br>`filters.jobs[].type` - Job type: append, create, drop, positionedDrop, remove, rename, and set.
-<br>`filters.jobs[].firstField` - First field when applying the append filter. 
+<br>`filters.jobs[].type` - Job type: append, appendWithValue, create, drop, positionedDrop, remove, rename, and set.
+<br>`filters.jobs[].firstField` - First field when applying the append and appendWithValue filter. 
 <br>`filters.jobs[].secondField` - Second field when applying the append filter. 
 <br>`filters.jobs[].newFieldName` - New field name, used for append and rename operations.
+<br>`filters.jobs[].stringToAppend` - Used in the appendWithValue filter to define the value (text) to be appended.
+<br>`filters.jobs[].position` - Used in the appendWithValue filter to define where to append the value, at the start or the end.
 <br>`filters.jobs[].fieldName` - New field name in the create filter.
 <br>`filters.jobs[].fieldValue` - Value of the new field in the create filter.
 <br>`filters.jobs[].fieldTarget` - Target field for drop, positionedDrop, remove, and rename filters.
 <br>`filters.jobs[].comparison` - Object for drop and positionedDrop filters.
-<br>`filters.jobs[].comparison.operator` - Type of operation to validate whether to remove the line or not. Used in drop and positionedDrop filters.
+<br>`filters.jobs[].comparison.operator` - Type of operation to validate whether to delete the line or not. Used in drop and positionedDrop filters.
 <br>`filters.jobs[].comparison.value` - Value considered for validation. Used in drop and positionedDrop filters.
 <br>`filters.jobs[].comparison.digit` - Only for positionedDrop filter, represents the index of the character for validation.
 <br>`filters.jobs[].positionStart` - Used in set filter to define the starting index in the string where the field begins.
@@ -328,11 +341,13 @@ If the filters property is present, it must include:
 <br>`jobs`: An array with at least one item (defined by minItems: 1) 
 <br>Each item is an object that must contain at least:
 <br>- `name`: A string.
-<br>- `type`: A string that must be one of the specific values: "append", "create", "drop", "positionedDrop", "remove", "rename", "set".
+<br>- `type`: A string that must be one of the specific values: "append", "appendWithValue", "create", "drop", "positionedDrop", "remove", "rename", "set".
 
 Depending on the value of type, some additional properties may be required:
-<br>`firstField`, `secondField`: Required for type `append`. 
-<br>`newFieldName`:  Required for type `append` and `rename`.
+<br>`firstField`: Required for type `append` and `appendWithValue`. 
+<br>`secondField`: Required for type `append`. 
+<br>`newFieldName`:  Required for type `append`, `rename` and `appendWithValue`.
+<br>`stringToAppend`, `position`: Required for type `appendWithValue`.
 <br>`fieldName`, `fieldValue`: Required for type `create`.
 <br>`fieldTarget`: Required for types `remove`, `drop`, `positionedDrop` and `rename`.
 <br>`comparison`: Required for types `drop`, `positionedDrop`. Must contain `operator` and `value`, and `digit` additionally for `positionedDrop`. `operator` must be one of the specific values: ===, !==, >, <, >=, <=.
@@ -549,7 +564,7 @@ The final result to be written to Kafka:
 
 ### Remove
 
-The `remove` filter will eliminate a field from being written to Kafka.
+The `remove` filter will eliminate a field (or an array of fields) from being written to Kafka.
 
 Given the fields: `"name;age;birthDate"` and the line: `"Liz;33;19901202"`.
 
@@ -566,6 +581,21 @@ Given the fields: `"name;age;birthDate"` and the line: `"Liz;33;19901202"`.
       "name": "removeAge",
       "type": "remove",
       "fieldTarget": "age"
+    }
+  ]
+}
+```
+
+or 
+
+```json
+"filters": {
+  "sequence": "removeProperties",
+  "jobs": [
+    {
+      "name": "removeProperties",
+      "type": "remove",
+      "fieldTarget": [ "name", "age" ]
     }
   ]
 }
@@ -612,6 +642,46 @@ The final result to be written to Kafka:
 ```json
 {
    "nameAndAgeAndBirthDate": "Liz3319901202"
+}
+```
+
+### AppendWithValue
+
+The `appendWithValue` similar to append, this filter combines one propertie into one string, assigning the name defined in newFieldName to the resulting combined property.
+
+Given the fields: `"name;age;birthDate"` and the line: `"Liz;33;19901202"`.
+
+```json
+"filters": {
+  "sequence": "name;age",
+  "jobs": [
+    {
+      "name": "appendHelloToName",
+      "type": "appendWithValue",
+      "firstField" : "name", 
+      "newFieldName": "helloName",
+      "stringToAppend" : "Hello", 
+      "position" : "start"
+    },
+    {
+      "name": "appendAgeToHello",
+      "type": "appendWithValue",
+      "firstField" : "age", 
+      "newFieldName": "ageHello",
+      "stringToAppend" : "Hello", 
+      "position" : "end"
+    }
+  ]
+}
+```
+
+The final result to be written to Kafka:
+
+```json
+{
+   "helloName": "HelloLiz",
+   "ageHello": "33Hello",
+   "birth": "19901202"
 }
 ```
 

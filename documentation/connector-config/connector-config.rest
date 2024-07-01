@@ -23,8 +23,8 @@ Content-Type: application/json
             {
                 "name" : "renameFruta1", 
                 "type" : "rename", 
-                "field" : "fruta1", 
-                "target" : "frutaUm"
+                "fieldTarget" : "fruta1", 
+                "newFieldName" : "frutaUm"
             }, 
             {
                 "name" : "removeFruta2", 
@@ -41,8 +41,8 @@ Content-Type: application/json
             {
                 "name" : "renameFruta5", 
                 "type" : "rename", 
-                "field" : "fruta5", 
-                "target" : "frutaCinco"
+                "fieldTarget" : "fruta5", 
+                "newFieldName" : "frutaCinco"
             }, 
             {
                 "name" : "removeFruta6", 
@@ -55,5 +55,5 @@ Content-Type: application/json
 }
 
 #### DELETE remover um conector específico
-DELETE {{localhost}}/connectors/abroba
+DELETE {{localhost}}/connectors/fruits
 Content-Type: application/json
