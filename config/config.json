@@ -1,5 +1,8 @@
 {
   "PORT": 3000,
+  "MONITOR_WATCHER_INTERVAL": 10000,
+  "SAFE_INTERVAL_WITHOUT_HANDLE_FILE": 2000,
+  "POOL_INTERVAL_WHILE_SAFE_INTERVAL_COUNT": 1000,
   "MONGODB_URI": "mongodb://localhost:27017/kafkonnector",
   "ROOT_FOLDER": "/data/kafkonnector",
   "KAFKA_CONNECT_URL": "localhost:9092",

@@ -9,9 +9,9 @@ const kafkaManager = require('./lib/streams/kafka/manager');
 process.title = pkg.name;
 
 const shutdown = async () => {
+  await server.stop();
   await kafkaManager.disconnect();
   await database.close();
-  await server.stop();
   process.exit(0);
 };
 
@@ -39,10 +39,10 @@ process.on('SIGTERM', shutdown)
 
 (async () => {
   try {
-    await server.start();
     await database.connect();
     await kafkaManager.connect();
     await startProcedures();
+    await server.start();
   } catch (err) {
     logger.error('Initialization failed', err);
     throw err;
