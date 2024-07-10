@@ -47,7 +47,7 @@
                   "positionedDrop",
                   "remove",
                   "rename",
-                  "set",
+                  "parse",
                   "appendWithValue"
                 ]
               },
@@ -67,9 +67,12 @@
                 "type": "string"
               },
               "fieldTarget": {
-                "type": "string"
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "array", "items": { "type": "string" } }
+                ]
               },
-              "comparsion": {
+              "comparison": {
                 "type": "object",
                 "properties": {
                   "operator": {
@@ -92,17 +95,15 @@
                 },
                 "required": ["operator", "value"]
               },
-              "positionStart": {
-                "type": "integer"
-              },
-              "fieldLength": {
-                "type": "integer"
-              },
-              "positionTarget": {
-                "type": "integer"
-              },
               "stringToAppend": {
                 "type": "string"
+              },
+              "parseType": {
+                "type": "string",
+                "enum": [
+                  "int",
+                  "string"
+                ]
               },
               "position": {
                 "type": "string",

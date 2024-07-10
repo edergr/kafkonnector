@@ -15,18 +15,28 @@ describe('Process Data unit test', () => {
 
   describe('Success Cases', () => {
     const data = [
-      'Abacate;Maça;Banana;Uva',
-      'Maracuja;Groselha;Kiwi;Manga',
-      'Melancia;Pera;Goiaba;Mamao',
+      'Abacate Maça    BananaUva  ',
+      'MaracujaGroselhaKiwi  Manga',
+      'MelanciaPera    GoiabaMamao',
     ];
     const name = 'saladaDeFruta';
 
     const document = {
+      propertiesPosition: [0, 8, 16, 22],
       delimiter: ';',
       fieldNames: 'campo1;campo2;campo3;campo4',
       filters: {
-        sequence: 'renameCampo1;removeCampo2;appendCampo3e4',
+        sequence: 'dropCampo1;renameCampo1;removeCampo2;appendCampo3e4',
         jobs: [
+          {
+            name: 'dropCampo1',
+            type: 'drop',
+            fieldTarget: 'campo1',
+            comparison: {
+              operator: '===',
+              value: 'Melancia'
+            }
+          },
           {
             name: 'renameCampo1',
             type: 'rename',
@@ -54,11 +64,11 @@ describe('Process Data unit test', () => {
       sandbox.stub(configurationsRepository, 'findOne').resolves(document);
       sandbox.stub(streamWriter, 'write').resolves();
 
-      const expectRestul = { retry: false, failData: [] };
+      const expectedResult = { retry: false, failData: [] };
 
       const result = await processData(data, name);
 
-      assert.deepEqual(result, expectRestul);
+      assert.deepEqual(result, expectedResult);
     });
 
     it('Should process successfully without filters', async () => {
@@ -67,11 +77,11 @@ describe('Process Data unit test', () => {
 
       delete document.filters;
 
-      const expectRestul = { retry: false, failData: [] };
+      const expectedResult = { retry: false, failData: [] };
 
       const result = await processData(data, name);
 
-      assert.deepEqual(result, expectRestul);
+      assert.deepEqual(result, expectedResult);
     });
 
     it('Should process successfully with retry and without kafka write errors', async () => {
@@ -80,11 +90,11 @@ describe('Process Data unit test', () => {
 
       document.retry = true;
 
-      const expectRestul = { retry: true, failData: [] };
+      const expectedResult = { retry: true, failData: [] };
 
       const result = await processData(data, name);
 
-      assert.deepEqual(result, expectRestul);
+      assert.deepEqual(result, expectedResult);
     });
 
     it('Should process successfully with retry and kafka write errors', async () => {
@@ -94,16 +104,16 @@ describe('Process Data unit test', () => {
       document.retry = true;
       data[1] = '';
 
-      const expectRestul = {
+      const expectedResult = {
         retry: true, failData: [
-          'Abacate;Maça;Banana;Uva',
-          'Melancia;Pera;Goiaba;Mamao',
+          "Abacate Maça    BananaUva  ",
+          "MelanciaPera    GoiabaMamao"
         ]
       };
 
       const result = await processData(data, name);
 
-      assert.deepEqual(result, expectRestul);
+      assert.deepEqual(result, expectedResult);
     });
   });
 });

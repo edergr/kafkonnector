@@ -1,6 +1,6 @@
 {
   "name": "kafkonnector",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "Kafka File Connector",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,9 @@
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/edergr/kafkonnector/issues"
+  },
+  "engines": {
+    "node": "20.11.0"
   },
   "homepage": "https://github.com/edergr/kafkonnector#readme",
   "dependencies": {

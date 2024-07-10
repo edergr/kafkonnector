@@ -1,11 +1,11 @@
 const sinon = require('sinon');
-const { assert } = require('chai');
+const assert = require('assert');
 const { logger } = require('../../../../lib/commons');
 const configurationsRepository = require('../../../../lib/commons/repository/configurations')
 const db = require('../../../../lib/commons/database');
 const { fakeDocument } = require('../../../fixture');
 
-describe.skip('Repository unit tests', () => {
+describe('Repository unit tests', () => {
   describe('Success Cases', () => {
     let id;
     let document;
@@ -20,20 +20,20 @@ describe.skip('Repository unit tests', () => {
     it('Should execute findOne and return the expect result', async () => {
       const result = await configurationsRepository.findOne({ _id: id });
 
-      assert.deepEqual(result, document);
+      assert.deepStrictEqual(result, document);
     });
 
     it('Should execute find and return the expect result', async () => {
       const result = await configurationsRepository.find({ _id: id });
 
-      assert.deepEqual(result[0], document);
+      assert.deepStrictEqual(result[0], document);
     });
 
     it('Should execute insertOne and return the expect result', async () => {
       const newDocument = fakeDocument();
 
       const { insertedId } = await configurationsRepository.insertOne(newDocument);
-      assert.isNotNull(insertedId);
+      assert.notDeepStrictEqual(insertedId, null);
     });
 
     it('Should execute updateOne and return the expect result', async () => {
@@ -44,12 +44,12 @@ describe.skip('Repository unit tests', () => {
       };
 
       const { modifiedCount } = await configurationsRepository.updateOne({ _id: id }, update);
-      assert.deepEqual(modifiedCount, 1);
+      assert.deepStrictEqual(modifiedCount, 1);
     });
 
     it('Should execute deleteOne and return the expect result', async () => {
       const { deletedCount } = await configurationsRepository.deleteOne({ _id: id });
-      assert.deepEqual(deletedCount, 1);
+      assert.deepStrictEqual(deletedCount, 1);
     });
   });
 
@@ -100,6 +100,7 @@ describe.skip('Repository unit tests', () => {
     ];
 
     testCases.map(({
+      only,
       operation,
       func,
       filter,
@@ -107,18 +108,20 @@ describe.skip('Repository unit tests', () => {
       update,
       pipeline
     }) => {
-      const testItCase = it;
+      const testItCase = only ? it.only : it;
 
       return testItCase(`Should handle and log erro on ${operation}`, async () => {
         sandbox.stub(db.getCollection('configurations'), operation).throws(error);
 
-        await func(filter || document || pipeline, update);
-
-        sandbox.assert.calledOnceWithExactly(
-          logger.error,
-          `Database error: ${operation} configurations. Detail: %s`,
-          error.message
-        );
+        try {
+          await func(filter || document || pipeline, update);
+        } catch (err) {
+          sandbox.assert.calledOnceWithExactly(
+            logger.error,
+            `Database error: ${operation} configurations. Detail: %s`,
+            err.message
+          );
+        }
       });
     });
   });

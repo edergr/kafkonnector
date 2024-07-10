@@ -198,7 +198,7 @@ When making a POST request to configure a connector, the request payload is vali
                   "positionedDrop",
                   "remove",
                   "rename",
-                  "set",
+                  "parse",
                   "appendWithValue"
                 ]
               },
@@ -218,9 +218,12 @@ When making a POST request to configure a connector, the request payload is vali
                 "type": "string"
               },
               "fieldTarget": {
-                "type": "string"
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "array", "items": { "type": "string" } }
+                ]
               },
-              "comparsion": {
+              "comparison": {
                 "type": "object",
                 "properties": {
                   "operator": {
@@ -243,17 +246,15 @@ When making a POST request to configure a connector, the request payload is vali
                 },
                 "required": ["operator", "value"]
               },
-              "positionStart": {
-                "type": "integer"
-              },
-              "fieldLength": {
-                "type": "integer"
-              },
-              "positionTarget": {
-                "type": "integer"
-              },
               "stringToAppend": {
                 "type": "string"
+              },
+              "parseType": {
+                "type": "string",
+                "enum": [
+                  "int",
+                  "string"
+                ]
               },
               "position": {
                 "type": "string",
@@ -286,7 +287,7 @@ When making a POST request to configure a connector, the request payload is vali
 <br>`topic` - Name of the topic to which this connector should write messages.
 <br>`schemaValueId` - ID of the Schema related to the topic.
 <br>`fieldNames` - Names of the fields representing data in the file line.
-<br>`propertiesPosition` - Option to avoid using the filter: set. propertiesPosition is an array where each element should contain the initial character that represents where each field starts. To define the end character, the service itself considers the next position in the array minus 1. For example, assuming the received line in the file is: 'Eder3319901202', defining propertiesPosition as: [0, 4, 6], the service will understand that the line is divided as below, it will format it as follows to apply the filters: 'Eder;33;19901202'; 
+<br>`propertiesPosition` - Is an array where each element should contain the initial character that represents where each field starts. To define the end character, the service itself considers the next position in the array minus 1. For example, assuming the received line in the file is: 'Eder3319901202', defining propertiesPosition as: [0, 4, 6], the service will understand that the line is divided as below, it will format it as follows to apply the filters: 'Eder;33;19901202'; 
 ```bash
 positions: 0   4 6
 file-line: Eder3319901202
@@ -300,7 +301,7 @@ file-line: Eder3319901202
 
 #### Properties of jobs (inside filters)
 `filters.jobs[].name` - Job name, same name used in the sequence property.
-<br>`filters.jobs[].type` - Job type: append, appendWithValue, create, drop, positionedDrop, remove, rename, and set.
+<br>`filters.jobs[].type` - Job type: append, appendWithValue, create, drop, positionedDrop, remove and rename.
 <br>`filters.jobs[].firstField` - First field when applying the append and appendWithValue filter. 
 <br>`filters.jobs[].secondField` - Second field when applying the append filter. 
 <br>`filters.jobs[].newFieldName` - New field name, used for append and rename operations.
@@ -313,9 +314,6 @@ file-line: Eder3319901202
 <br>`filters.jobs[].comparison.operator` - Type of operation to validate whether to delete the line or not. Used in drop and positionedDrop filters.
 <br>`filters.jobs[].comparison.value` - Value considered for validation. Used in drop and positionedDrop filters.
 <br>`filters.jobs[].comparison.digit` - Only for positionedDrop filter, represents the index of the character for validation.
-<br>`filters.jobs[].positionStart` - Used in set filter to define the starting index in the string where the field begins.
-<br>`filters.jobs[].fieldLength` - Used in set filter to define the length of this field.
-<br>`filters.jobs[].positionTarget` - Used in set filter to define the index where it should be positioned in the message.
 
 ## Schema Analysis
 The schema is a JSON object with an identifier ($id) "connectorConfig".
@@ -341,7 +339,7 @@ If the filters property is present, it must include:
 <br>`jobs`: An array with at least one item (defined by minItems: 1) 
 <br>Each item is an object that must contain at least:
 <br>- `name`: A string.
-<br>- `type`: A string that must be one of the specific values: "append", "appendWithValue", "create", "drop", "positionedDrop", "remove", "rename", "set".
+<br>- `type`: A string that must be one of the specific values: "append", "appendWithValue", "create", "drop", "positionedDrop", "remove", "rename".
 
 Depending on the value of type, some additional properties may be required:
 <br>`firstField`: Required for type `append` and `appendWithValue`. 
@@ -351,7 +349,6 @@ Depending on the value of type, some additional properties may be required:
 <br>`fieldName`, `fieldValue`: Required for type `create`.
 <br>`fieldTarget`: Required for types `remove`, `drop`, `positionedDrop` and `rename`.
 <br>`comparison`: Required for types `drop`, `positionedDrop`. Must contain `operator` and `value`, and `digit` additionally for `positionedDrop`. `operator` must be one of the specific values: ===, !==, >, <, >=, <=.
-<br>`positionStart`, `fieldLength`, `positionTarget`: Required for type `set`.
 
 ### Summary of Rules
 <br>Required at the top level: `name`, `topic`, `fieldNames`, `retry`.
@@ -396,7 +393,7 @@ Here is an example of a valid JSON object based on this schema:
         "name": "job4",
         "type": "drop",
         "fieldTarget": "fieldToDrop",
-        "comparsion": {
+        "comparison": {
           "operator": "!==",
           "value": "someValue"
         }
@@ -405,18 +402,11 @@ Here is an example of a valid JSON object based on this schema:
         "name": "job5",
         "type": "positionedDrop",
         "fieldTarget": "fieldToDrop",
-        "comparsion": {
+        "comparison": {
           "operator": "===",
           "value": "someValue",
           "digit": 3
         }
-      },
-      {
-        "name": "job6",
-        "type": "set",
-        "positionStart": 0,
-        "fieldLength": 5,
-        "positionTarget": 10
       }
     ]
   }
@@ -492,6 +482,38 @@ The final result when the filter is applied will be:
   "age": "33",
   "birthDate": "19901202",
   "address": "Av. Test, 123"
+}
+```
+
+### Parse
+
+The `parse` filter will convert the value type.
+
+Usage example: `"name;age;birthDate"`.
+
+Given the line in the file arrives as: `"Liz;33;19901202"`.
+
+```json
+"filters": {
+  "sequence": "parseAge",
+  "jobs": [
+    {
+      "name": "parseAge",
+      "type": "parse",
+      "fieldTarget": "age",
+      "parseType": "int"
+    }
+  ]
+}
+```
+
+The final result when the filter is applied will be:
+
+```json
+{
+  "name": "Liz",
+  "age": 33,
+  "birthDate": "19901202"
 }
 ```
 
@@ -684,62 +706,6 @@ The final result to be written to Kafka:
    "birth": "19901202"
 }
 ```
-
-### Set
-
-The `set` filter is highly specific, and its usage should be carefully considered. If your file lacks clear delimiters such as ';', you can use the set filter to assign fields and their respective values without needing to preprocess the file before submitting it to the Kafkonnector.
-
-The property `positionTarget` is used to indicate the position within the array where this value should be placed.
-
-Given the fields: `"name;age;birthDate"` and the file line: `[ "Liz 3319901202", "Eder1320101202" ]`.
-
-```json
-"filters": {
-  "sequence": "setName;setAge;setBirth",
-  "jobs": [
-    {
-      "name": "setName",
-      "type": "set",
-      "positionStart" : 0, 
-      "fieldLength" : 4, 
-      "positionTarget" : 0
-    },
-    {
-      "name": "setAge",
-      "type": "set",
-      "positionStart" : 4, 
-      "fieldLength" : 2, 
-      "positionTarget" : 1
-    },
-    {
-      "name": "setBirth",
-      "type": "set",
-      "positionStart" : 6, 
-      "fieldLength" : 8, 
-      "positionTarget" : 2
-    }
-  ]
-}
-```
-
-For this case, it is essential that each line of the file has the same number of characters.
-
-The final result to be written to Kafka:
-
-```json
-{
-   "name": "Liz",
-   "age": "33",
-   "birthDate": "19901202"
-},
-{
-   "name": "Eder",
-   "age": "13",
-   "birthDate": "20101202"
-}
-```
-
-New filters are being developed such as `parseInt`, `parseString`, and others...
 
 ## Folder Structure
 

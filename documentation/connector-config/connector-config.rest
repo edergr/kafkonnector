@@ -1,7 +1,7 @@
 @localhost = http://localhost:3000
 
 #### GET recuperar um conector específico
-GET {{localhost}}/connectors/fruits/configs
+GET {{localhost}}/connectors/fruits
 Content-Type: application/json
 
 #### GET recuperar nome dos conectores disponíveis

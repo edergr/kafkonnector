@@ -1,5 +1,5 @@
 const sinon = require('sinon');
-const { assert } = require('chai');
+const assert = require('assert');
 const { logger } = require('../../../../lib/commons');
 const applyFilters = require('../../../../lib/data-processor/utils/apply-filters');
 
@@ -15,37 +15,109 @@ describe('Apply Filsters unit test', () => {
     afterEach(() => sandbox.restore());
 
     it('Should apply all filters successfully', () => {
-      const line = 'Abacate;Maça;Banana;Uva'
+      const lines = [
+        '1;19;98133;0000;9999;411;411;03  ; 000;SP;    ;    ;00019;M;N;20051126;20040401;        ',
+        '1;11; 2014;1883;1956;011;011;0303;1000;SP;SPO ;011 ;11000;F;N;20051126;19980425;        ',
+        '1;31;98836;5828;5828;430;430;01  ; 000;MG;    ;    ;00031;M;N;20230331;20230331;20240101',
+      ];
       const delimiter = ';';
-      const fieldNames = 'campo1;campo2;campo3;campo4';
+      const fieldNames = 'type;ddd;prefix;initialPrefix;finalPrefix;eot;receptorEot;region;sector;uf;localArea;tariffArea;locationId;prefixType;ported;createdDate;initialDate;finalDate';
       const filters = {
-        sequence: 'renameCampo1;removeCampo2;appendCampo3e4',
+        sequence: 'dropFinalDate;dropFixedNumber;removeProperties;renameInitialPrefix;renameFinalPrefix;renameEot;createCountryCode;appendWithValueFinalDate;parseIntDdd',
         jobs: [
           {
-            name: 'renameCampo1',
-            type: 'rename',
-            field: 'campo1',
-            target: 'campoUm'
+            name: 'dropFinalDate',
+            type: 'drop',
+            fieldTarget: 'finalDate',
+            comparison: {
+              operator: '!==',
+              value: '        '
+            }
           },
           {
-            name: 'removeCampo2',
+            name: 'dropFixedNumber',
+            type: 'positionedDrop',
+            fieldTarget: 'prefix',
+            comparison: {
+              operator: '===',
+              value: ' ',
+              digit: 0
+            }
+          },
+          {
+            name: 'removeProperties',
             type: 'remove',
-            field: 'campo2'
+            fieldTarget: ['type', 'receptorEot', 'region', 'sector', 'locationId', 'prefixType', 'createdDate']
           },
           {
-            name: 'appendCampo3e4',
-            type: 'append',
-            firstField: 'campo3',
-            secondField: 'campo4',
-            newFieldName: 'campo3e4'
+            name: 'renameInitialPrefix',
+            type: 'rename',
+            fieldTarget: 'initialPrefix',
+            newFieldName: 'rangeStart'
+          },
+          {
+            name: 'renameFinalPrefix',
+            type: 'rename',
+            fieldTarget: 'finalPrefix',
+            newFieldName: 'rangeEnd'
+          },
+          {
+            name: 'renameEot',
+            type: 'rename',
+            fieldTarget: 'eot',
+            newFieldName: 'carrierCode'
+          },
+          {
+            name: 'createCountryCode',
+            type: 'create',
+            fieldName: 'countryCode',
+            fieldValue: '055'
+          },
+          {
+            name: 'appendWithValueFinalDate',
+            type: 'appendWithValue',
+            firstField: 'finalDate',
+            stringToAppend: '123',
+            position: 'end',
+            newFieldName: 'finalDate'
+          },
+          {
+            name: 'parseIntDdd',
+            type: 'parse',
+            parseType: 'int',
+            fieldTarget: 'ddd',
           }
         ]
       };
 
-      const expectRestul = { newNames: 'campoUm;campo3e4', newLine: 'Abacate;BananaUva' };
-      const result = applyFilters(filters, delimiter, fieldNames, line);
+      const expectedResult = [
+        {
+          newNames: [
+            'countryCode', 'ddd',
+            'prefix', 'rangeStart',
+            'rangeEnd', 'carrierCode',
+            'uf', 'localArea',
+            'tariffArea', 'ported',
+            'initialDate', 'finalDate'
+          ],
+          newLine: [
+            '055', 19,
+            '98133', '0000',
+            '9999', '411',
+            'SP', '    ',
+            '    ', 'N',
+            '20040401', '        123'
+          ]
+        },
+        { drop: true },
+        { drop: true }
+      ];
 
-      assert.deepEqual(result, expectRestul);
+      lines.forEach((line, index) => {
+        const result = applyFilters(filters, delimiter, fieldNames, line);
+
+        assert.deepStrictEqual(result, expectedResult[index]);
+      })
     });
 
     it('Should logging error if the type does not exists', () => {
