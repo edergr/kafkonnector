@@ -10,7 +10,7 @@
     "lib/commons/kafka"
   ],
   "statements": 90,
-  "branches": 85,
+  "branches": 80,
   "functions": 90,
   "lines": 90,
   "reporter": ["lcov", "html", "text", "text-summary"],

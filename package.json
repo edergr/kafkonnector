@@ -1,6 +1,6 @@
 {
   "name": "kafkonnector",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "Kafka File Connector",
   "main": "index.js",
   "scripts": {
@@ -30,26 +30,26 @@
   },
   "homepage": "https://github.com/edergr/kafkonnector#readme",
   "dependencies": {
-    "ajv": "^8.12.0",
+    "ajv": "^8.17.1",
     "ajv-formats": "^2.1.1",
     "avsc": "^5.7.7",
-    "chokidar": "^3.5.3",
+    "chokidar": "^3.6.0",
     "cors": "^2.8.5",
-    "express": "^4.18.2",
+    "express": "^4.21.0",
     "helmet": "^7.1.0",
     "kafkajs": "^2.2.4",
     "kafkajs-snappy": "^1.1.0",
-    "mongodb": "^6.3.0",
+    "mongodb": "^6.9.0",
     "nconf": "^0.12.1",
-    "winston": "^3.11.0"
+    "winston": "^3.14.2"
   },
   "devDependencies": {
-    "chai": "^4.3.10",
-    "chance": "^1.1.11",
+    "chai": "^4.5.0",
+    "chance": "^1.1.12",
     "depcheck": "^1.4.7",
-    "mocha": "^10.2.0",
-    "nock": "^13.4.0",
+    "mocha": "^10.7.3",
+    "nock": "^13.5.5",
     "nyc": "^15.1.0",
-    "sinon": "^17.0.1"
+    "sinon": "^17.0.2"
   }
 }

@@ -13,41 +13,84 @@ POST {{localhost}}/connectors
 Content-Type: application/json
 
 {
-    "name": "fruits",
+    "name": "test",
     "delimiter": ";",
-    "topic": "event-streaming.connector.teste-datas",
-    "fieldNames": "fruta1;fruta2;fruta3;fruta4;fruta5;fruta6;fruta7",
+    "topic": "event-streaming.connector.teste",
+    "schema": 100100,
+    "fieldNames": "c1;c2;c3;c4;c5;c6;c7;c8;c9;c10;c11;c12",
+    "propertiesPosition": [0,1,2,3,4,5,6,7,8,9,10,11,12],
     "filters" : {
-        "sequence" : "renameFruta1;removeFruta2;appendFruta3e4;renameFruta5;removeFruta6", 
+        "sequence" : "rename;remove;removeArray;append;appendWithValueStart;appendWithValueEnd;drop;positionedDrop;parseInt;parseString", 
         "jobs": [
             {
-                "name" : "renameFruta1", 
+                "name" : "rename", 
                 "type" : "rename", 
-                "fieldTarget" : "fruta1", 
-                "newFieldName" : "frutaUm"
+                "fieldTarget" : "c1", 
+                "newFieldName" : "campo1"
             }, 
             {
-                "name" : "removeFruta2", 
+                "name" : "remove", 
                 "type" : "remove", 
-                "field" : "fruta2"
+                "field" : "c2"
             }, 
             {
-                "name" : "appendFruta3e4", 
+                "name" : "removeArray", 
+                "type" : "remove", 
+                "field" : ["c3","c4"]
+            }, 
+            {
+                "name" : "append", 
                 "type" : "append", 
-                "firstField" : "fruta3", 
-                "secondField" : "fruta4", 
-                "newFieldName" : "fruta3e4"
+                "firstField" : "c5", 
+                "secondField" : "c6", 
+                "newFieldName" : "c56"
             }, 
             {
-                "name" : "renameFruta5", 
-                "type" : "rename", 
-                "fieldTarget" : "fruta5", 
-                "newFieldName" : "frutaCinco"
+                "name" : "appendWithValueStart", 
+                "type" : "appendWithValue", 
+                "firstField" : "c7", 
+                "stringToAppend": "test",
+                "newFieldName" : "frutaCinco",
+                "position": "start"
             }, 
             {
-                "name" : "removeFruta6", 
-                "type" : "remove", 
-                "field" : "fruta6"
+                "name" : "appendWithValueEnd", 
+                "type" : "appendWithValue", 
+                "firstField" : "c8", 
+                "stringToAppend": "test",
+                "newFieldName" : "frutaCinco",
+                "position": "end"
+            }, 
+            {
+                "name" : "drop", 
+                "type" : "drop", 
+                "fieldTarget": "c9",
+                "comparison": {
+                    "operator": "===",
+                    "value": "0"
+                }
+            }, 
+            {
+                "name" : "positionedDrop", 
+                "type" : "positionedDrop", 
+                "fieldTarget": "c10",
+                "comparison": {
+                    "operator": "===",
+                    "value": "0",
+                    "digit": 0
+                }
+            }, 
+            {
+                "name" : "parseInt", 
+                "type" : "parse", 
+                "fieldTarget": "c11",
+                "parseType": "int"
+            }, 
+            {
+                "name" : "parseString", 
+                "type" : "parse", 
+                "fieldTarget": "c12",
+                "parseType": "string"
             }
         ]
     },

@@ -11,7 +11,7 @@
     "topic": {
       "type": "string"
     },
-    "schemaValueId": {
+    "schema": {
       "type": "integer"
     },
     "fieldNames": {
@@ -42,13 +42,13 @@
                 "type": "string",
                 "enum": [
                   "append",
+                  "appendWithValue",
                   "create",
                   "drop",
                   "positionedDrop",
-                  "remove",
-                  "rename",
                   "parse",
-                  "appendWithValue"
+                  "remove",
+                  "rename"
                 ]
               },
               "firstField": {
