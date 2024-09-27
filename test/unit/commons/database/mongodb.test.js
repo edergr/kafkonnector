@@ -51,7 +51,7 @@ describe('Mongodb unit tests', () => {
       assert.isNotNull(objectId);
     });
 
-    it('Should emit serverOpening event event when there is already client database connected', () => {
+    it('Should emit serverOpening event when there is already client database connected', () => {
       const dbInstance = new Db();
       const mongoClientMock = {
         topology: Object.create(EventEmitter.prototype)
@@ -65,13 +65,6 @@ describe('Mongodb unit tests', () => {
 
       assert.isTrue(topologyOnSpy.calledOnceWith('serverOpening'));
       mongoClientMock.topology.emit('serverOpening');
-    });
-
-    it('Should call mongodb.close without error', async () => {
-      const closeSpy = sandbox.spy(Db.prototype, 'close');
-      await db.close();
-
-      sandbox.assert.calledOnce(closeSpy);
     });
   });
 

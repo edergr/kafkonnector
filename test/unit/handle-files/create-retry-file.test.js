@@ -4,7 +4,7 @@ const { logger } = require('../../../lib/commons');
 const fs = require('fs').promises;
 const createRetryFile = require('../../../lib/handle-files/create-retry-file');
 
-describe.skip('Create Retry File unit tests', () => {
+describe('Create Retry File unit tests', () => {
   let sandbox;
 
   beforeEach(() => {

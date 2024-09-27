@@ -1,7 +1,7 @@
 const pkg = require('./package.json');
 const server = require('./lib/server');
 const { database, logger } = require('./lib/commons');
-const wathcers = require('./lib/streams/watcher');
+const watchers = require('./lib/streams/watcher');
 const { checkMappedFolders } = require('./lib/handle-folders/mapping');
 const monitoring = require('./lib/handle-folders/monitoring');
 const kafkaManager = require('./lib/streams/kafka/manager');
@@ -16,7 +16,7 @@ const shutdown = async () => {
 };
 
 const startProcedures = async () => {
-  wathcers.watchCreatedConnectors();
+  watchers.watchCreatedConnectors();
   await checkMappedFolders();
   await monitoring.pendingFolders();
   await monitoring.retryFolders();
